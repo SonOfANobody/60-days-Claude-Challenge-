@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Prior Authorization Workflow Simulator</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  color: #000;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* ───────── HEADER ───────── */
+.header {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: #fff;
+  padding: 24px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* ───────── TOP CONTROLS ───────── */
+.controls {
+  background: #f5f5f5;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.patient-select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.button {
+  padding: 8px 16px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background: #1565c0;
+}
+
+.button.secondary {
+  background: #64b5f6;
+}
+
+.button.secondary:hover {
+  background: #42a5f5;
+}
+
+/* ───────── PROGRESS BAR ───────── */
+.progress-section {
+  background: #f9f9f9;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.progress-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1976d2, #42a5f5);
+  transition: width 0.3s ease;
+}
+
+/* ───────── STATS BAR ───────── */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 16px 24px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1976d2;
+}
+
+/* ───────── WORKFLOW CONTAINER ───────── */
+.workflow-container {
+  display: flex;
+  height: calc(100vh - 400px);
+  min-height: 500px;
+}
+
+.workflow-lane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid #e0e0e0;
+  background: #fafafa;
+  position: relative;
+}
+
+.workflow-lane:last-child {
+  border-right: none;
+}
+
+.lane-header {
+  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  color: #fff;
+  padding: 16px;
+  font-weight: 600;
+  text-align: center;
+  font-size: 14px;
+}
+
+.lane-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ───────── STAGE BOXES ───────── */
+.stage-box {
+  background: #e3f2fd;
+  border: 2px dashed #1976d2;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 60px;
+  text-align: center;
+  color: #555;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.stage-box.active {
+  background: #bbdefb;
+  border-color: #1565c0;
+}
+
+/* ───────── CASE CARD ───────── */
+.case-card {
+  background: #fff;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: grab;
+  user-select: none;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-size: 12px;
+}
+
+.case-card:hover {
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+  transform: translateY(-2px);
+}
+
+.case-card.dragging {
+  opacity: 0.6;
+  cursor: grabbing;
+}
+
+.case-card.drag-over {
+  background: #bbdefb;
+  border-color: #1565c0;
+}
+
+.case-id {
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 4px;
+}
+
+.case-type {
+  font-size: 11px;
+  color: #666;
+}
+
+/* ───────── MODAL ───────── */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 16px;
+}
+
+.modal-text {
+  color: #333;
+  line-height: 1.6;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.modal-education {
+  background: #e3f2fd;
+  border-left: 4px solid #1976d2;
+  padding: 12px;
+  margin: 16px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.modal-form {
+  margin: 16px 0;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.modal-buttons .button {
+  flex: 1;
+  min-width: 100px;
+}
+
+/* ───────── CELEBRATION ───────── */
+.celebration {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+
+.celebration.active {
+  display: flex;
+}
+
+.celebration-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: bounceIn 0.6s ease;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { opacity: 1; }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.celebration-emoji {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.celebration-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 12px;
+}
+
+.celebration-text {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  animation: fall 3s linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* ───────── SUMMARY ───────── */
+.summary-section {
+  background: #f9f9f9;
+  padding: 24px;
+  margin-top: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.summary-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 16px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.summary-item {
+  background: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 4px solid #1976d2;
+}
+
+.summary-item-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.summary-item-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1976d2;
+}
+
+/* ───────── FOOTER ───────── */
+.footer {
+  background: #f5f5f5;
+  padding: 24px;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+  font-size: 12px;
+  color: #666;
+}
+
+/* ───────── RESPONSIVE ───────── */
+@media (max-width: 900px) {
+  .workflow-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .workflow-lane {
+    border-right: none;
+    border-bottom: 2px solid #e0e0e0;
+    min-height: 250px;
+  }
+
+  .workflow-lane:last-child {
+    border-bottom: none;
+  }
+
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+  }
+
+  .patient-select,
+  .button {
+    width: 100%;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- HEADER -->
+  <div class="header">
+    <h1>🏥 Prior Authorization Workflow Simulator</h1>
+    <p>Navigate the healthcare prior authorization process with real-world scenarios</p>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <select id="patientSelect" class="patient-select">
+      <option value="">-- Select Patient Scenario --</option>
+      <option value="0">Patient 1: Elective Hip Replacement</option>
+      <option value="1">Patient 2: Advanced MRI Imaging</option>
+      <option value="2">Patient 3: Specialty Medication (Biologic)</option>
+      <option value="3">Patient 4: Inpatient Hospital Admission</option>
+    </select>
+    <div>
+      <button id="startBtn" class="button">Start Workflow</button>
+      <button id="resetBtn" class="button secondary">Restart</button>
+    </div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-section">
+    <div class="progress-label">Workflow Progress</div>
+    <div class="progress-bar">
+      <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-label">Days Elapsed</div>
+      <div id="daysElapsed" class="stat-value">0</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Efficiency Score</div>
+      <div id="efficiencyScore" class="stat-value">100%</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Status</div>
+      <div id="status" class="stat-value">Ready</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Outcome</div>
+      <div id="outcome" class="stat-value">Pending</div>
+    </div>
+  </div>
+
+  <!-- WORKFLOW LANES -->
+  <div class="workflow-container">
+    <!-- PATIENT LANE -->
+    <div class="workflow-lane">
+      <div class="lane-header">👤 Patient</div>
+      <div class="lane-content">
+        <div id="patientStage1" class="stage-box">Initial Intake</div>
+        <div id="patientStage2" class="stage-box">Collects Medical Records</div>
+        <div id="patientStage3" class="stage-box">Waits for Approval</div>
+      </div>
+    </div>
+
+    <!-- PROVIDER LANE -->
+    <div class="workflow-lane">
+      <div class="lane-header">👨‍⚕️ Provider</div>
+      <div class="lane-content">
+        <div id="providerStage1" class="stage-box">Requests Authorization</div>
+        <div id="providerStage2" class="stage-box">Submits Documentation</div>
+        <div id="providerStage3" class="stage-box">Awaits Decision</div>
+      </div>
+    </div>
+
+    <!-- PAYER LANE -->
+    <div class="workflow-lane">
+      <div class="lane-header">🏢 Payer (Insurance)</div>
+      <div class="lane-content">
+        <div id="payerStage1" class="stage-box">Receives Request</div>
+        <div id="payerStage2" class="stage-box">Medical Necessity Review</div>
+        <div id="payerStage3" class="stage-box">Final Decision</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY (shown on completion) -->
+  <div id="summarySection" class="summary-section" style="display: none;">
+    <div class="summary-title">Workflow Summary</div>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-item-label">Total Duration</div>
+        <div id="summaryDays" class="summary-item-value">0 days</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-item-label">Final Outcome</div>
+        <div id="summaryOutcome" class="summary-item-value">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-item-label">Efficiency Score</div>
+        <div id="summaryEfficiency" class="summary-item-value">100%</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-item-label">Appeals Required</div>
+        <div id="summaryAppeals" class="summary-item-value">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>📚 Educational Simulator: Drag cases through the workflow. Click cards for detailed information and decisions.</p>
+  </div>
+</div>
+
+<!-- MODAL FOR INTERACTIONS -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <div id="modalTitle" class="modal-title"></div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- CELEBRATION OVERLAY -->
+<div id="celebration" class="celebration">
+  <div class="celebration-card">
+    <div class="celebration-emoji">✅</div>
+    <div class="celebration-title">Prior Authorization Approved!</div>
+    <div class="celebration-text" id="celebrationText"></div>
+    <button class="button" onclick="closeModal()">Continue</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// SCENARIO DATA (EDITABLE)
+// ─────────────────────────────────────────────────────────────
+
+const scenarios = [
+  {
+    id: 'P001',
+    name: 'Elective Hip Replacement',
+    type: 'Surgical',
+    diagnosis: 'Severe osteoarthritis, hip joint',
+    urgency: 'Elective',
+    medicalNecessity: 'Patient reports significant pain limiting mobility. Conservative treatment failed over 2 years. Clinical guidelines support surgical intervention.',
+    requiredDocs: ['Medical records (3+ years)', 'Imaging reports (X-rays, MRI)', 'Physical therapy notes', 'Surgical plan'],
+    possibleOutcomes: ['APPROVED', 'PEND', 'DENIAL'],
+    approvalTime: 5,
+  },
+  {
+    id: 'P002',
+    name: 'Advanced MRI Imaging',
+    type: 'Diagnostic',
+    diagnosis: 'Suspected spinal cord compression',
+    urgency: 'Non-urgent',
+    medicalNecessity: 'MRI needed to rule out serious spinal pathology. Standard imaging already performed. Prior less invasive imaging shows possible abnormality.',
+    requiredDocs: ['Prior imaging results', 'Physician justification', 'Clinical notes'],
+    possibleOutcomes: ['APPROVED', 'PEND'],
+    approvalTime: 2,
+  },
+  {
+    id: 'P003',
+    name: 'Specialty Medication (Biologic)',
+    type: 'Pharmaceutical',
+    diagnosis: 'Moderate to severe psoriasis',
+    urgency: 'Routine',
+    medicalNecessity: 'Patient failed 2+ conventional therapies. Biologic agents are guideline-recommended next step for this condition.',
+    requiredDocs: ['Medication history', 'Prior treatment records', 'Dermatology consultation', 'Prescribing physician form'],
+    possibleOutcomes: ['APPROVED', 'PEND', 'DENIAL'],
+    approvalTime: 3,
+  },
+  {
+    id: 'P004',
+    name: 'Inpatient Hospital Admission',
+    type: 'Admission',
+    diagnosis: 'Acute decompensated heart failure',
+    urgency: 'Emergency',
+    medicalNecessity: 'Patient presenting with acute shortness of breath, reduced ejection fraction, and fluid overload. Meets medical necessity criteria for inpatient hospitalization.',
+    requiredDocs: ['ED visit documentation', 'EKG and echocardiogram', 'Lab results', 'Physician certification'],
+    possibleOutcomes: ['APPROVED'],
+    approvalTime: 1,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────
+// STATE MANAGEMENT
+// ─────────────────────────────────────────────────────────────
+
+const state = {
+  currentScenario: null,
+  caseCard: null,
+  currentStage: 0,
+  daysElapsed: 0,
+  efficiencyScore: 100,
+  workflowCompleted: false,
+  outcome: null,
+  appealsRequired: 0,
+  completedSteps: [],
+};
+
+// ─────────────────────────────────────────────────────────────
+// INITIALIZATION
+// ─────────────────────────────────────────────────────────────
+
+function init() {
+  document.getElementById('patientSelect').addEventListener('change', onScenarioSelect);
+  document.getElementById('startBtn').addEventListener('click', startWorkflow);
+  document.getElementById('resetBtn').addEventListener('click', resetWorkflow);
+
+  // Make stage boxes droppable
+  document.querySelectorAll('[id^="patientStage"], [id^="providerStage"], [id^="payerStage"]').forEach(box => {
+    box.addEventListener('dragover', handleDragOver);
+    box.addEventListener('drop', handleDrop);
+    box.addEventListener('dragleave', handleDragLeave);
+  });
+}
+
+function onScenarioSelect(e) {
+  const index = e.target.value;
+  if (index !== '') {
+    state.currentScenario = scenarios[parseInt(index)];
+  }
+}
+
+function startWorkflow() {
+  if (!state.currentScenario) {
+    alert('Please select a patient scenario first');
+    return;
+  }
+
+  resetWorkflow();
+  state.workflowCompleted = false;
+  state.currentStage = 0;
+  state.daysElapsed = 0;
+  state.efficiencyScore = 100;
+
+  // Create case card
+  const caseCard = document.createElement('div');
+  caseCard.className = 'case-card';
+  caseCard.draggable = true;
+  caseCard.innerHTML = `
+    <div class="case-id">${state.currentScenario.id}</div>
+    <div class="case-type">${state.currentScenario.name}</div>
+  `;
+
+  caseCard.addEventListener('dragstart', handleDragStart);
+  caseCard.addEventListener('dragend', handleDragEnd);
+  caseCard.addEventListener('click', showCaseDetails);
+
+  const patientStage1 = document.getElementById('patientStage1');
+  patientStage1.appendChild(caseCard);
+  state.caseCard = caseCard;
+
+  updateUI();
+  showNotification('Workflow started! Drag the case card through the workflow stages.');
+}
+
+function resetWorkflow() {
+  if (state.caseCard && state.caseCard.parentNode) {
+    state.caseCard.parentNode.removeChild(state.caseCard);
+  }
+  state.caseCard = null;
+  state.currentStage = 0;
+  state.daysElapsed = 0;
+  state.efficiencyScore = 100;
+  state.workflowCompleted = false;
+  state.outcome = null;
+  state.appealsRequired = 0;
+  state.completedSteps = [];
+  document.getElementById('summarySection').style.display = 'none';
+  updateUI();
+}
+
+// ─────────────────────────────────────────────────────────────
+// DRAG AND DROP
+// ─────────────────────────────────────────────────────────────
+
+let draggedElement = null;
+
+function handleDragStart(e) {
+  draggedElement = e.currentTarget;
+  draggedElement.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragEnd(e) {
+  draggedElement.classList.remove('dragging');
+  document.querySelectorAll('[id^="patientStage"], [id^="providerStage"], [id^="payerStage"]').forEach(box => {
+    box.classList.remove('drag-over');
+  });
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+
+  if (!draggedElement || draggedElement !== state.caseCard) return;
+
+  const targetId = e.currentTarget.id;
+  const targetStageNum = parseInt(targetId.match(/\d+$/)[0]);
+
+  // Map drop zone to workflow stage
+  let newStage = state.currentStage;
+  if (targetId.includes('patientStage')) {
+    newStage = targetStageNum - 1;
+  } else if (targetId.includes('providerStage')) {
+    newStage = targetStageNum + 2;
+  } else if (targetId.includes('payerStage')) {
+    newStage = targetStageNum + 5;
+  }
+
+  if (newStage > state.currentStage) {
+    advanceWorkflow(newStage, e.currentTarget);
+  } else if (newStage < state.currentStage) {
+    showNotification('⚠️ Cannot move backward in the workflow.');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// WORKFLOW PROGRESSION
+// ─────────────────────────────────────────────────────────────
+
+function advanceWorkflow(newStage, targetBox) {
+  state.currentStage = newStage;
+  state.daysElapsed += Math.floor(Math.random() * 2) + 1;
+  state.efficiencyScore = Math.max(50, 100 - state.daysElapsed * 3);
+
+  const steps = [
+    { num: 0, action: 'Patient completes intake form' },
+    { num: 1, action: 'Patient collects medical records' },
+    { num: 2, action: 'Provider initiates authorization request' },
+    { 
