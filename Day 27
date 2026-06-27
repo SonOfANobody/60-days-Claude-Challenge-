@@ -1,0 +1,474 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Prior Authorization Story Simulator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  .chat-bubble {
+    display: flex;
+    gap: 8px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .chat-bubble.left {
+    justify-content: flex-start;
+  }
+
+  .chat-bubble.right {
+    justify-content: flex-end;
+  }
+
+  .bubble-content {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+
+  .bubble-content.rahul {
+    background: #e3f2fd;
+    color: #0d47a1;
+    border-left: 4px solid #1976d2;
+  }
+
+  .bubble-content.priya {
+    background: #f3e5f5;
+    color: #4a148c;
+    border-left: 4px solid #7b1fa2;
+  }
+
+  .narrator-text {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    margin: 16px 0;
+    padding: 12px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .scene-header {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1976d2;
+    margin: 20px 0 16px;
+  }
+
+  .speaker-label {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .speaker-label.rahul {
+    color: #1976d2;
+  }
+
+  .speaker-label.priya {
+    color: #7b1fa2;
+  }
+
+  .education-box {
+    background: #fff3e0;
+    border-left: 4px solid #f57c00;
+    padding: 12px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin: 12px 0;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .education-title {
+    font-weight: 700;
+    color: #e65100;
+    margin-bottom: 4px;
+  }
+
+  .citation {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+    margin-top: 8px;
+  }
+
+  .choice-button {
+    background: #1976d2;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s;
+    flex: 1;
+  }
+
+  .choice-button:hover {
+    background: #1565c0;
+  }
+
+  .choice-button.secondary {
+    background: #64b5f6;
+  }
+
+  .choice-button.secondary:hover {
+    background: #42a5f5;
+  }
+
+  .choices-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .choices-container {
+      grid-template-columns: 1fr;
+    }
+
+    .bubble-content {
+      max-width: 100%;
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1976d2, #42a5f5);
+    transition: width 0.3s ease;
+  }
+
+  .scene-counter {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .scroll-anchor {
+    height: 0;
+  }
+</style>
+</head>
+<body class="bg-gradient-to-b from-blue-50 to-blue-100">
+
+<div class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-2xl bg-white rounded-lg shadow-lg overflow-hidden">
+
+    <!-- HEADER -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-6 text-center">
+      <h1 class="text-2xl font-bold mb-2">🏥 Prior Authorization Story</h1>
+      <p class="text-sm opacity-90">Follow Rahul's journey through the healthcare system</p>
+    </div>
+
+    <!-- SCENE COUNTER -->
+    <div class="px-6 pt-4">
+      <div class="scene-counter" id="sceneCounter"></div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- SCENE HEADER -->
+    <div class="px-6 pt-2">
+      <div class="scene-header" id="sceneHeader"></div>
+    </div>
+
+    <!-- CHAT CONTAINER -->
+    <div class="px-6 py-4 h-96 overflow-y-auto bg-gray-50 rounded-none" id="chatContainer"></div>
+
+    <!-- SCROLL ANCHOR -->
+    <div class="scroll-anchor" id="scrollAnchor"></div>
+
+    <!-- CHOICES -->
+    <div class="px-6 pb-6 bg-gray-50">
+      <div class="choices-container" id="choicesContainer"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// STORY STATE & PROGRESSION
+// ─────────────────────────────────────────────────────────────
+
+const state = {
+  currentScene: 1,
+  chatHistory: [],
+  choices: [],
+  denialPath: false,
+  appealPath: false,
+};
+
+const scenes = {
+  1: {
+    title: 'Doctor Visit',
+    description: 'City Medical Center',
+    narrator: 'Rahul arrives at City Medical Center for his appointment.',
+  },
+  2: {
+    title: 'Insurance Roadblock',
+    description: 'Prior Authorization Submitted',
+    narrator: 'Dr. Patel\'s office submits a Prior Authorization request directly to StarCare Health (insurance).',
+  },
+  3: {
+    title: 'What is Prior Authorization?',
+    description: 'Priya Explains',
+    narrator: 'At City Medical Center\'s operations center, Priya explains the process to Rahul.',
+  },
+  4: {
+    title: 'Insurance Review',
+    description: 'StarCare Health\'s Decision Process',
+    narrator: 'Priya walks through what happens inside StarCare Health when they receive the PA request.',
+  },
+  5: {
+    title: 'Denial',
+    description: 'The Decision',
+    narrator: 'Two weeks pass. The decision arrives.',
+  },
+  6: {
+    title: 'Appeal',
+    description: 'Fighting Back',
+    narrator: 'Rahul and Priya decide to appeal the denial.',
+  },
+  7: {
+    title: 'Approval',
+    description: 'The Reversal',
+    narrator: 'After submitting additional documentation, the good news arrives.',
+  },
+  8: {
+    title: 'Takeaways',
+    description: 'What We Learned',
+    narrator: 'Priya and Rahul reflect on the entire journey.',
+  },
+};
+
+// ─────────────────────────────────────────────────────────────
+// DIALOGUE & NARRATIVE DATA
+// ─────────────────────────────────────────────────────────────
+
+const storyData = {
+  1: {
+    dialogue: [
+      { speaker: 'narrator', text: 'Rahul has been experiencing severe joint pain for the past 3 months.' },
+      { speaker: 'narrator', text: 'He\'s decided to see Dr. Patel, a rheumatologist at City Medical Center.' },
+      { speaker: 'rahul', text: 'Doctor, my hands and knees have been getting progressively worse. I can barely grip things in the morning.' },
+      { speaker: 'narrator', text: 'Dr. Patel examines Rahul and reviews recent lab work.' },
+      { speaker: 'narrator', text: 'The diagnosis: Rheumatoid Arthritis (RA), an autoimmune condition.' },
+      { speaker: 'narrator', text: 'Dr. Patel prescribes Humira, a biologic medication that suppresses the immune system to reduce inflammation.' },
+      { speaker: 'rahul', text: 'How do I get this medication? Is it covered by my insurance?' },
+      { speaker: 'narrator', text: 'Dr. Patel\'s office explains: StarCare Health requires something called Prior Authorization before Humira can be dispensed.' },
+    ],
+    choices: [
+      { text: 'What is Prior Authorization?', next: 2 },
+      { text: 'Why does insurance need to approve medications?', next: 3 },
+    ],
+  },
+
+  2: {
+    dialogue: [
+      { speaker: 'narrator', text: 'Dr. Patel\'s office prepares the Prior Authorization request (PA request).' },
+      { speaker: 'narrator', text: 'They submit it directly to StarCare Health — Rahul\'s insurance company.' },
+      { speaker: 'narrator', text: 'The request includes: Rahul\'s diagnosis (Rheumatoid Arthritis), clinical notes, lab results, and why Humira is medically necessary.' },
+      { speaker: 'narrator', text: 'This is NOT submitted to a pharmacy. The flow is: Provider → PA Request → Payer (Insurance).' },
+      { speaker: 'rahul', text: 'How long does this usually take?' },
+      { speaker: 'narrator', text: 'StarCare Health has 5–15 business days to review and decide.' },
+      { speaker: 'narrator', text: 'During this time, Rahul cannot start Humira, even though his disease is progressing.' },
+    ],
+    choices: [
+      { text: 'Continue to Priya\'s explanation', next: 3 },
+      { text: 'Skip ahead to the decision', next: 5 },
+    ],
+  },
+
+  3: {
+    dialogue: [
+      { speaker: 'narrator', text: 'Priya, a healthcare operations specialist, meets Rahul while he waits.' },
+      { speaker: 'priya', text: 'Hi Rahul, I see you\'re waiting for your Prior Authorization. Let me explain what\'s happening.' },
+      { speaker: 'rahul', text: 'Thanks. I don\'t really understand why insurance needs to approve my doctor\'s prescription.' },
+      { speaker: 'priya', text: 'Great question. Prior Authorization is a review process. Insurance wants to confirm that a medication is medically necessary and follows treatment guidelines.' },
+      { speaker: 'priya', text: 'For aggressive diagnoses like RA, there\'s a real clinical reason for this: research shows treatment delays can affect disease progression.' },
+      { speaker: 'rahul', text: 'So it\'s not just bureaucracy?' },
+      { speaker: 'priya', text: 'It\'s not meant to be. But here\'s the reality: according to the AMA 2023 PA Survey, PA requests cause treatment delays in the majority of cases.' },
+      { speaker: 'education', box: true, title: '📚 Why Prior Authorization Exists', text: 'Insurance companies use PA to:\n• Confirm medical necessity (is the treatment guideline-recommended?)\n• Check cost-effectiveness (is there a cheaper alternative first?)\n• Prevent overutilization (protect against unnecessary procedures).\n\nFor serious conditions like RA, these delays can genuinely impact health outcomes.' },
+      { speaker: 'citation', text: 'Source: AMA 2023 Prior Authorization Survey - PA causes treatment delays in majority of cases' },
+    ],
+    choices: [
+      { text: 'How does insurance decide?', next: 4 },
+      { text: 'What happens if they deny it?', next: 5 },
+    ],
+  },
+
+  4: {
+    dialogue: [
+      { speaker: 'narrator', text: 'Priya explains what happens inside StarCare Health when they receive the PA request.' },
+      { speaker: 'priya', text: 'StarCare Health has a clinical review team. Here\'s what they check:' },
+      { speaker: 'priya', text: '1. **Eligibility**: Is Rahul actually covered by StarCare Health? Does his plan cover Humira?' },
+      { speaker: 'priya', text: '2. **Clinical Documentation**: Did Dr. Patel provide enough evidence? Lab results, exam findings, imaging?' },
+      { speaker: 'priya', text: '3. **ICD-10 Diagnosis Match**: Is Rheumatoid Arthritis in StarCare Health\'s guidelines for Humira coverage? (Spoiler: it is.)' },
+      { speaker: 'priya', text: '4. **Step Therapy History**: Has Rahul already tried cheaper alternatives? (e.g., methotrexate first?)' },
+      { speaker: 'rahul', text: 'What if I haven\'t tried those alternatives?' },
+      { speaker: 'priya', text: 'Then StarCare Health might deny your PA and require you to try step therapy first. It\'s called **formulary management**.' },
+      { speaker: 'education', box: true, title: '📋 What StarCare Health Reviews', text: 'Each check has a purpose:\n• **Eligibility** = Prevents billing errors\n• **Documentation** = Confirms doctor did proper evaluation\n• **Diagnosis Match** = Ensures treatment aligns with medical guidelines\n• **Step Therapy** = Requires trying cheaper drugs first (when clinically appropriate)\n\nThis protects both the patient and the system.' },
+    ],
+    choices: [
+      { text: 'What\'s step therapy?', next: 4.5 },
+      { text: 'Jump to the decision', next: 5 },
+    ],
+  },
+
+  4.5: {
+    dialogue: [
+      { speaker: 'priya', text: 'Step therapy means: try the least expensive first-line treatment before jumping to biologics like Humira.' },
+      { speaker: 'priya', text: 'For RA, that\'s usually methotrexate (MTX), a much cheaper drug that works for many patients.' },
+      { speaker: 'priya', text: 'Humira costs ~$6,000/month. MTX costs ~$20/month. If MTX works, that\'s a huge savings.' },
+      { speaker: 'rahul', text: 'But what if MTX doesn\'t work for me?' },
+      { speaker: 'priya', text: 'Then you have documented evidence of failure, and PA for Humira becomes much easier to approve.' },
+      { speaker: 'education', box: true, title: '💰 Step Therapy Rationale', text: 'Step therapy isn\'t arbitrary:\n• Protects patient safety (low-dose therapies first)\n• Reduces unnecessary exposure to side effects\n• Saves healthcare system money without compromising care\n\nBUT: if a patient has already tried MTX, or has severe disease requiring aggressive treatment immediately, step therapy can be bypassed.' },
+    ],
+    choices: [
+      { text: 'Continue to the decision', next: 5 },
+    ],
+  },
+
+  5: {
+    dialogue: [
+      { speaker: 'narrator', text: 'Two weeks pass. Rahul\'s pain is worsening, and he\'s anxious about the decision.' },
+      { speaker: 'narrator', text: 'An email arrives from StarCare Health.' },
+      { speaker: 'narrator', text: '**PRIOR AUTHORIZATION DENIED**' },
+      { speaker: 'narrator', text: 'Reason: Missing step therapy documentation. StarCare Health requires evidence that Rahul tried methotrexate first.' },
+      { speaker: 'rahul', text: 'This is ridiculous! My doctor already prescribed Humira!' },
+      { speaker: 'priya', text: 'I understand your frustration. But here\'s the key: denial does NOT mean permanent rejection.' },
+      { speaker: 'priya', text: 'It means the application is incomplete. We need to gather the missing documentation and resubmit.' },
+      { speaker: 'education', box: true, title: '⚠️ The Cost of PA Denials', text: 'When a PA gets denied:\n• Dr. Patel\'s office spends 2+ staff hours investigating the denial\n• Rahul experiences treatment delay (his disease progresses)\n• StarCare Health gets flooded with appeals\n• The system becomes less efficient for everyone\n\nDenials often happen due to incomplete submissions, not clinical judgment.' },
+    ],
+    choices: [
+      { text: 'Submit an appeal', next: 6 },
+      { text: 'Give up on Humira', next: 8 },
+    ],
+  },
+
+  6: {
+    dialogue: [
+      { speaker: 'narrator', text: 'Priya guides Rahul and Dr. Patel through the appeal process.' },
+      { speaker: 'priya', text: 'Step 1: We gather documentation of your step therapy.' },
+      { speaker: 'priya', text: 'Step 2: Dr. Patel writes a Letter of Medical Necessity explaining why you need Humira urgently.' },
+      { speaker: 'priya', text: 'Step 3: We file a formal appeal with StarCare Health.' },
+      { speaker: 'narrator', text: 'Dr. Patel submits a letter explaining Rahul\'s severe RA and the clinical urgency.' },
+      { speaker: 'priya', text: 'Appeals have a higher success rate than initial denials. StarCare Health wants to see effort and documentation.' },
+      { speaker: 'rahul', text: 'How long does an appeal take?' },
+      { speaker: 'priya', text: 'Usually 5–10 business days. It\'s faster than the initial review because StarCare Health already has your file.' },
+      { speaker: 'education', box: true, title: '📝 Appeal Process', text: 'An appeal typically includes:\n1. **Step Therapy Evidence**: Records showing MTX was tried or clinical contraindication\n2. **Letter of Medical Necessity**: Doctor explains urgency\n3. **Additional Clinical Data**: Recent labs, exam findings\n\nAppeals succeed ~60% of the time when properly documented.' },
+    ],
+    choices: [
+      { text: 'Wait for appeal decision', next: 7 },
+    ],
+  },
+
+  7: {
+    dialogue: [
+      { speaker: 'narrator', text: 'One week passes.' },
+      { speaker: 'narrator', text: 'Rahul receives an email from StarCare Health.' },
+      { speaker: 'narrator', text: '**PRIOR AUTHORIZATION APPROVED**' },
+      { speaker: 'narrator', text: 'Approval Details: Humira is approved for 12 months. No repeat PA needed during this period.' },
+      { speaker: 'narrator', text: 'Reference #: SCI-2024-001847' },
+      { speaker: 'rahul', text: 'Finally! Can I start my medication now?' },
+      { speaker: 'priya', text: 'Yes! This PA is saved on file. StarCare Health won\'t require another PA for Humira this year.' },
+      { speaker: 'priya', text: 'Your pharmacy can now process your prescription without additional delays.' },
+      { speaker: 'narrator', text: 'Rahul picks up his Humira the next day and starts treatment.' },
+      { speaker: 'education', box: true, title: '✅ PA Approval Saved', text: 'When StarCare Health approves a PA:\n• It\'s saved in their system\n• The reference number (SCI-2024-001847) is tied to your account\n• Refills and continued treatment don\'t require new PAs (typically)\n• Your pharmacy can verify coverage in seconds\n\nThis approval is specific to your diagnosis and the approved timeframe.' },
+    ],
+    choices: [
+      { text: 'See the takeaways', next: 8 },
+    ],
+  },
+
+  8: {
+    dialogue: [
+      { speaker: 'narrator', text: 'Three months later, Rahul\'s RA is in remission. His joint pain has subsided dramatically.' },
+      { speaker: 'narrator', text: 'Priya and Rahul reflect on the journey.' },
+      { speaker: 'rahul', text: 'I learned that Prior Auth isn\'t just about insurance being difficult.' },
+      { speaker: 'rahul', text: 'It\'s a system trying to balance cost, safety, and access—even if it sometimes delays care.' },
+      { speaker: 'priya', text: 'Exactly. And from a healthcare operations perspective:' },
+      { speaker: 'priya', text: 'We tracked your case and found: 1 initial denial, 1 appeal, 3-week total resolution time.' },
+      { speaker: 'priya', text: 'That 3-week delay? It affected your disease progression. Ideally, we\'d catch documentation issues *before* the initial denial.' },
+      { speaker: 'education', box: true, title: '📊 System Metrics that Matter', text: '**What health systems now track:**\n• Denial Rate: 15-20% is typical (if >30%, something\'s broken)\n• Appeal Success Rate: 60-70% suggests denials are happening at the wrong stage\n• Average Resolution Time: Ideally <5 days\n• Patient Delay Impact: How many days did the patient wait for treatment?\n\nStarCare Health\'s goal: approve 95% of medically necessary requests on the first try.' },
+      { speaker: 'narrator', text: 'The story ends with Rahul back to normal activities, grateful that persistence paid off.' },
+      { speaker: 'narrator', text: 'And Priya, knowing that better PA processes save time for everyone.' },
+    ],
+    choices: [
+      { text: '🎉 Restart Story', next: 'restart' },
+    ],
+  },
+};
+
+// ─────────────────────────────────────────────────────────────
+// RENDER FUNCTIONS
+// ─────────────────────────────────────────────────────────────
+
+function appendChatBubble(speaker, text) {
+  const container = document.getElementById('chatContainer');
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble ' + (speaker === 'rahul' ? 'left' : 'right');
+
+  if (speaker === 'narrator') {
+    bubble.innerHTML = `<div class="narrator-text">${text}</div>`;
+  } else if (speaker === 'education') {
+    bubble.innerHTML = `<div class="education-box"><div class="education-title">${text.title}</div><div>${text.text}</div></div>`;
+  } else if (speaker === 'citation') {
+    bubble.innerHTML = `<div class="citation">${text}</div>`;
+  } else {
+    const speakerClass = speaker === 'rahul' ? 'rahul' : 'priya';
+    const speakerName = speaker === 'rahul' ? '👦 Rahul' : '👧 Priya';
+    bubble.innerHTML = `
+      <div style="width: 100%;">
+        <div class="speaker-label ${speakerClass}">${speakerName}</div>
+        <div class="bubble-content ${speakerClass}">${text}</div>
+      </div>
+    `;
+  }
+
+  container.appendChild(bubble);
+  scrollToBottom();
+}
+
+function appendEducation(title, text) {
+  const container = document.getElementById('chatContainer');
+  const edu = document.createElement('div');
+  edu.cla
