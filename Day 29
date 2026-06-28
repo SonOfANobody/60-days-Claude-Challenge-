@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Operation Lifeline: Supply Chain Crisis Lab</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+  color: #e0e6ed;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 42px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  font-size: 16px;
+  color: #a0aac0;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 8px 32px rgba(0,212,255,0.1);
+  transform: translateY(-2px);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.btn {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: #0f1419;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0,212,255,0.3);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: rgba(0,212,255,0.15);
+  color: #00d4ff;
+  border: 1px solid rgba(0,212,255,0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(0,212,255,0.25);
+  border-color: rgba(0,212,255,0.5);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  box-shadow: 0 8px 24px rgba(255,68,68,0.3);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #00cc88, #009966);
+  color: #fff;
+}
+
+.btn-success:hover {
+  box-shadow: 0 8px 24px rgba(0,204,136,0.3);
+}
+
+.btn-large {
+  padding: 16px 48px;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.action-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  border: 2px solid rgba(0,212,255,0.15);
+  border-radius: 12px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-card:hover {
+  border-color: rgba(0,212,255,0.5);
+  background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05));
+  transform: translateY(-4px);
+}
+
+.action-card.selected {
+  border-color: #00d4ff;
+  background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,212,255,0.1));
+  box-shadow: 0 0 20px rgba(0,212,255,0.3);
+}
+
+.action-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #00d4ff;
+}
+
+.action-desc {
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.5;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.metric-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #00d4ff;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d4ff, #0099cc);
+  transition: width 0.5s ease;
+}
+
+.question-text {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #e0e6ed;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.option-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(0,212,255,0.2);
+  color: #e0e6ed;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.option-btn:hover {
+  border-color: rgba(0,212,255,0.5);
+  background: rgba(0,212,255,0.1);
+}
+
+.option-btn.selected {
+  border-color: #00d4ff;
+  background: rgba(0,212,255,0.2);
+  color: #00d4ff;
+}
+
+.crisis-alert {
+  background: linear-gradient(135deg, rgba(255,68,68,0.1), rgba(255,100,100,0.05));
+  border-left: 4px solid #ff4444;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.crisis-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ff6666;
+  margin-bottom: 8px;
+}
+
+.crisis-desc {
+  font-size: 14px;
+  color: #a0aac0;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.urgency-tag {
+  display: inline-block;
+  background: #ff4444;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.feedback-card {
+  background: rgba(0,212,255,0.05);
+  border-left: 4px solid #00d4ff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.feedback-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.feedback-text {
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.6;
+}
+
+.score-display {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.final-score {
+  font-size: 64px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+}
+
+.score-label {
+  font-size: 16px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.company-stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.company-stat:last-child {
+  border-bottom: none;
+}
+
+.stat-key {
+  color: #a0aac0;
+  font-size: 13px;
+}
+
+.stat-value {
+  color: #00d4ff;
+  font-weight: 600;
+}
+
+.negotiation-round {
+  background: rgba(0,212,255,0.05);
+  border: 1px solid rgba(0,212,255,0.2);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.round-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #00d4ff;
+  margin-bottom: 12px;
+}
+
+.round-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.round-metric {
+  text-align: center;
+}
+
+.round-metric-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #00d4ff;
+}
+
+.round-metric-label {
+  font-size: 10px;
+  color: #a0aac0;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #e0e6ed;
+  border-bottom: 2px solid rgba(0,212,255,0.3);
+  padding-bottom: 16px;
+}
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.welcome-content {
+  max-width: 600px;
+}
+
+.welcome-subtitle {
+  font-size: 18px;
+  color: #a0aac0;
+  margin-bottom: 40px;
+  line-height: 1.8;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05));
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-card-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #00d4ff;
+  margin-bottom: 8px;
+}
+
+.stat-card-label {
+  font-size: 12px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 32px;
+  }
+  
+  .final-score {
+    font-size: 48px;
+  }
+  
+  .section-title {
+    font-size: 22px;
+  }
+  
+  .action-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// DATA GENERATION
+const generateCompany = () => {
+  const industries = ['Electronics Manufacturing', 'Automotive', 'Pharmaceuticals', 'Consumer Goods', 'Food & Beverage'];
+  const countries = ['China', 'Vietnam', 'India', 'Mexico', 'Germany'];
+  
+  return {
+    name: ['TechFlow Inc.', 'GlobalManu Co.', 'SupplyChain Pro', 'LogisticHub', 'ProcureMax'][Math.floor(Math.random()*5)],
+    industry: industries[Math.floor(Math.random()*industries.length)],
+    revenue: (Math.random()*3000 + 500).toFixed(0),
+    factories: Math.floor(Math.random()*8) + 2,
+    warehouses: Math.floor(Math.random()*12) + 3,
+    suppliers: Math.floor(Math.random()*50) + 20,
+    inventoryDays: Math.floor(Math.random()*60) + 20,
+    leadTime: Math.floor(Math.random()*120) + 30,
+    countries: countries.slice(0, Math.floor(Math.random()*3) + 2),
+  };
+};
+
+const generateCrisis = () => {
+  const crises = [
+    { name: 'Factory Fire', desc: 'Major production facility destroyed in unexpected fire. 40% capacity lost.', impact: -35, urgency: 'Critical' },
+    { name: 'Supplier Bankruptcy', desc: 'Key supplier files bankruptcy. Contracts void. Supply chain disrupted.', impact: -30, urgency: 'Critical' },
+    { name: 'Port Strike', desc: 'Shipping ports hit by 60-day strike. All exports blocked.', impact: -40, urgency: 'Critical' },
+    { name: 'Cyberattack', desc: 'Ransomware attack on ERP system. Operations delayed 2 weeks.', impact: -25, urgency: 'High' },
+    { name: 'Flood Disaster', desc: 'Warehouse flooded by unprecedented rainfall. Inventory loss 50%.', impact: -45, urgency: 'Critical' },
+    { name: 'Raw Material Shortage', desc: 'Global shortage of critical raw material due to geopolitical tension.', impact: -20, urgency: 'High' },
+    { name: 'Political Conflict', desc: 'Trade war escalates. Tariffs increase 40% overnight.', impact: -35, urgency: 'Critical' },
+    { name: 'Shipping Delay', desc: 'Container ship capacity reduced by 70%. Delays of 8-12 weeks expected.', impact: -30, urgency: 'High' },
+  ];
+  
+  return crises[Math.floor(Math.random()*crises.length)];
+};
+
+// COMPONENTS
+const WelcomeScreen = ({ onStart }) => (
+  <div className="welcome-screen">
+    <div className="welcome-content">
+      <div className="header" style={{ marginBottom: '40px' }}>
+        <h1>Operation Lifeline</h1>
+        <p style={{ marginTop: '16px', fontSize: '18px' }}>Supply Chain Crisis Lab</p>
+      </div>
+      
+      <p className="welcome-subtitle">
+        You're about to become a Supply Chain Commander. Navigate a surprise crisis, make tough decisions, negotiate with suppliers, and lead your company through turbulent times.
+      </p>
+      
+      <p className="welcome-subtitle" style={{ color: '#00d4ff', marginBottom: '60px' }}>
+        Every playthrough is unique. Let's begin.
+      </p>
+      
+      <button className="btn btn-large" onClick={onStart}>
+        Start Simulation
+      </button>
+    </div>
+  </div>
+);
+
+const CompanyIntro = ({ company, crisis, onContinue }) => (
+  <div className="container">
+    <div className="header">
+      <h1>{company.name}</h1>
+      <p>{company.industry}</p>
+    </div>
+    
+    <div className="card-grid">
+      <div className="card">
+        <div className="metric-label">Annual Revenue</div>
+        <div className="metric-value" style={{ marginTop: '8px' }}>${company.revenue}M</div>
+      </div>
+      <div className="card">
+        <div className="metric-label">Manufacturing Sites</div>
+        <div className="metric-value" style={{ marginTop: '8px' }}>{company.factories}</div>
+      </div>
+      <div className="card">
+        <div className="metric-label">Active Suppliers</div>
+        <div className="metric-value" style={{ marginTop: '8px' }}>{company.suppliers}</div>
+      </div>
+      <div className="card">
+        <div className="metric-label">Warehouses</div>
+        <div className="metric-value" style={{ marginTop: '8px' }}>{company.warehouses}</div>
+      </div>
+      <div className="card">
+        <div className="metric-label">Inventory Days</div>
+        <div className="metric-value" style={{ marginTop: '8px' }}>{company.inventoryDays}</div>
+      </div>
+      <div className="card">
+        <div className="metric-label">Avg Lead Time</div>
+        <div className="metric-value" style={{ marginTop: '8px' }}>{company.leadTime} days</div>
+      </div>
+    </div>
+    
+    <div className="section-title">The Crisis Strikes</div>
+    
+    <div className="crisis-alert">
+      <div className="crisis-title">{crisis.name}</div>
+      <div className="crisis-desc">{crisis.desc}</div>
+      <div style={{ marginTop: '12px' }}>
+        <span className="urgency-tag">Urgency: {crisis.urgency}</span>
+      </div>
+    </div>
+    
+    <p style={{ color: '#a0aac0', marginBottom: '30px', lineHeight: '1.8' }}>
+      <strong>What happens next:</strong> Your executive team is gathering in the war room. Immediate decisions needed on crisis response. You have 2 hours to choose your first three actions before the situation deteriorates further.
+    </p>
+    
+    <button className="btn btn-large" onClick={onContinue}>
+      Enter War Room
+    </button>
+  </div>
+);
+
+const WarRoom = ({ company, crisis, onActions }) => {
+  const [selected, setSelected] = useState([]);
+  
+  const actions = [
+    { id: 1, title: 'Activate Emergency Suppliers', desc: 'Contact backup suppliers for immediate orders. Higher cost (+20%), longer lead time but saves production.' },
+    { id: 2, title: 'Negotiate Extended Payments', desc: 'Call major customers and request 30-day payment delay. Reduces cash flow pressure temporarily.' },
+    { id: 3, title: 'Redirect Inventory', desc: 'Use inventory from other facilities to cover demand. Costs $2M to transport.' },
+    { id: 4, title: 'Halt Non-Critical Production', desc: 'Stop making lower-margin products. Focus all capacity on core revenue products.' },
+    { id: 5, title: 'Public Communication Blitz', desc: 'Issue press release explaining situation. Maintain customer trust and investor confidence.' },
+    { id: 6, title: 'Explore M&A Opportunities', desc: 'Contact competitors to discuss asset purchases or temporary capacity leasing.' },
+  ];
+  
+  const toggle = (id) => {
+    if (selected.includes(id)) {
+      setSelected(selected.filter(x => x !== id));
+    } else if (selected.length < 3) {
+      setSelected([...selected, id]);
+    }
+  };
+  
+  const handleContinue = () => {
+    if (selected.length === 3) {
+      onActions(selected);
+    }
+  };
+  
+  return (
+    <div className="container">
+      <div className="section-title">War Room: Choose Your Response</div>
+      
+      <p style={{ color: '#a0aac0', marginBottom: '24px', lineHeight: '1.8' }}>
+        <strong>Your Challenge:</strong> You must choose exactly 3 immediate actions from the options below. Each action has trade-offs. Think carefully about balancing short-term survival with long-term stability.
+      </p>
+      
+      <div className="action-grid">
+        {actions.map(action => (
+          <div
+            key={action.id}
+            className={`action-card ${selected.includes(action.id) ? 'selected' : ''}`}
+            onClick={() => toggle(action.id)}
+          >
+            <div className="action-title">{action.title}</div>
+            <div className="action-desc">{action.desc}</div>
+            {selected.includes(action.id) && (
+              <div style={{ marginTop: '12px', color: '#00d4ff', fontSize: '12px', fontWeight: '600' }}>
+                ✓ Selected
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <span style={{ color: '#a0aac0', fontSize: '14px' }}>
+          Actions selected: {selected.length}/3
+        </span>
+      </div>
+      
+      <button 
+        className="btn btn-large" 
+        onClick={handleContinue}
+        disabled={selected.length !== 3}
+        style={{ opacity: selected.length === 3 ? 1 : 0.5, cursor: selected.length === 3 ? 'pointer' : 'not-allowed' }}
+      >
+        Execute Actions
+      </button>
+    </div>
+  );
+};
+
+const ImpactSimulation = ({ selectedActions, company, crisis, onContinue }) => {
+  const [metrics, setMetrics] = useState({
+    cost: 100,
+    inventory: 100,
+    profit: 100,
+    deliverySpeed: 100,
+    satisfaction: 100,
+  });
+  
+  const [animateProgress, setAnimateProgress] = useState(false);
+  
+  useEffect(() => {
+    setAnimateProgress(true);
+    
+    // Calculate impact based on selected actions
+    let costDelta = -25;
+    let inventoryDelta = -30;
+    let profitDelta = -40;
+    let deliveryDelta = -35;
+    let satisfactionDelta = -25;
+    
+    if (selectedActions.includes(1)) { // Emergency suppliers
+      costDelta += 15;
+      deliveryDelta += 15;
+      inventoryDelta += 10;
+    }
+    if (selectedActions.includes(2)) { // Extended payments
+      profitDelta += 10;
+      satisfactionDelta -= 5;
+    }
+    if (selectedActions.includes(3)) { // Redirect inventory
+      inventoryDelta += 20;
+      costDelta -= 8;
+    }
+    if (selectedActions.includes(4)) { // Halt non-critical
+      profitDelta -= 10;
+      deliveryDelta += 10;
+      costDelta += 5;
+    }
+    if (selectedActions.includes(5)) { // Communication
+      satisfactionDelta += 15;
+    }
+    if (selectedActions.includes(6)) { // M&A
+      costDelta -= 15;
+      inventoryDelta += 5;
+      profitDelta -= 20;
+    }
+    
+    const finalMetrics = {
+      cost: Math.max(10, 100 + costDelta),
+      inventory: Math.max(10, 100 + inventoryDelta),
+      profit: Math.max(10, 100 + profitDelta),
+      deliverySpeed: Math.max(10, 100 + deliveryDelta),
+      satisfaction: Math.max(10, 100 + satisfactionDelta),
+    };
+    
+    setTimeout(() => {
+      setMetrics(finalMetrics);
+    }, 500);
+  }, [selectedActions]);
+  
+  return (
+    <div className="container">
+      <div className="section-title">Crisis Impact Simulation</div>
+      
+      <p style={{ color: '#a0aac0', marginBottom: '30px', lineHeight: '1.8' }}>
+        Based on your three chosen actions, here's how the crisis impacts your company in the next 30 days:
+      </p>
+      
+      <div className="card-grid" style={{ marginBottom: '30px' }}>
+        <div className="card">
+          <div className="metric-label">Operating Costs</div>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${animateProgress ? metrics.cost : 0}%` }}></div>
+          </div>
+          <div className="metric-value">{Math.round(metrics.cost)}%</div>
+        </div>
+        <div className="card">
+          <div className="metric-label">Inventory Levels</div>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${animateProgress ? metrics.inventory : 0}%` }}></div>
+          </div>
+          <div className="metric-value">{Math.round(metrics.inventory)}%</div>
+        </div>
+        <div className="card">
+          <div className="metric-label">Profitability</div>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${animateProgress ? metrics.profit : 0}%` }}></div>
+          </div>
+          <div className="metric-value">{Math.round(metrics.profit)}%</div>
+        </div>
+        <div className="card">
+          <div className="metric-label">Delivery Speed</div>
+          <di
