@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Supply Chain Builder</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+  color: #e0e6ed;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 800;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  font-size: 14px;
+  color: #a0aac0;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.card:hover {
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 8px 32px rgba(0,212,255,0.1);
+}
+
+.btn {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: #0f1419;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0,212,255,0.3);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: rgba(0,212,255,0.15);
+  color: #00d4ff;
+  border: 1px solid rgba(0,212,255,0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(0,212,255,0.25);
+}
+
+.btn-large {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.choice-card {
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(0,212,255,0.15);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.choice-card:hover {
+  border-color: rgba(0,212,255,0.5);
+  background: rgba(0,212,255,0.08);
+  transform: translateY(-2px);
+}
+
+.choice-card.selected {
+  border-color: #00d4ff;
+  background: rgba(0,212,255,0.15);
+  box-shadow: 0 0 16px rgba(0,212,255,0.3);
+}
+
+.choice-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #00d4ff;
+  margin-bottom: 4px;
+}
+
+.choice-desc {
+  font-size: 12px;
+  color: #a0aac0;
+  line-height: 1.4;
+}
+
+.concept-box {
+  background: rgba(0,212,255,0.08);
+  border-left: 4px solid #00d4ff;
+  padding: 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.concept-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.concept-text {
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.impact-box {
+  background: rgba(255,100,100,0.08);
+  border-left: 4px solid #ff6666;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.impact-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff6666;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.impact-text {
+  font-size: 12px;
+  color: #a0aac0;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.metric-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #00d4ff;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d4ff, #0099cc);
+  transition: width 0.5s ease;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05));
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+}
+
+.metric-card-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #00d4ff;
+  margin-bottom: 4px;
+}
+
+.metric-card-label {
+  font-size: 11px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #e0e6ed;
+}
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+}
+
+.welcome-content {
+  max-width: 700px;
+}
+
+.welcome-subtitle {
+  font-size: 16px;
+  color: #a0aac0;
+  margin-bottom: 32px;
+  line-height: 1.8;
+}
+
+.company-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.info-card {
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.info-label {
+  font-size: 10px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #00d4ff;
+}
+
+.final-score {
+  font-size: 56px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.score-label {
+  font-size: 13px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+
+.feedback-card {
+  background: rgba(0,212,255,0.05);
+  border-left: 4px solid #00d4ff;
+  padding: 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.feedback-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.feedback-text {
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.6;
+}
+
+.step-counter {
+  font-size: 12px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 32px;
+  }
+
+  .final-score {
+    font-size: 42px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+
+  .choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .company-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState } = React;
+
+// DATA GENERATION
+const generateCompany = () => {
+  const industries = ['Electronics', 'Clothing & Apparel', 'Automotive', 'Food & Beverage', 'Pharmaceuticals'];
+  const products = {
+    Electronics: ['Smartphones', 'Laptops', 'Tablets'],
+    'Clothing & Apparel': ['T-Shirts', 'Jeans', 'Jackets'],
+    Automotive: ['Car Parts', 'Engines', 'Batteries'],
+    'Food & Beverage': ['Snacks', 'Beverages', 'Frozen Foods'],
+    Pharmaceuticals: ['Vaccines', 'Pain Relievers', 'Antibiotics'],
+  };
+  const countries = ['USA', 'Europe', 'Asia', 'South America', 'Africa'];
+  const demandLevels = ['Low', 'Moderate', 'High', 'Very High'];
+
+  const industry = industries[Math.floor(Math.random() * industries.length)];
+  const product = products[industry][Math.floor(Math.random() * products[industry].length)];
+
+  return {
+    name: ['TechFlow', 'GlobalMake', 'FastShip', 'ProBuild', 'ChainCo', 'LogisticPro'][Math.floor(Math.random() * 6)] + ' Inc.',
+    industry,
+    products: [product],
+    countriesServed: countries.slice(0, Math.floor(Math.random() * 3) + 2),
+    demand: demandLevels[Math.floor(Math.random() * demandLevels.length)],
+  };
+};
+
+// COMPONENTS
+const WelcomeScreen = ({ onStart }) => (
+  <div className="welcome-screen">
+    <div className="welcome-content">
+      <div className="header" style={{ marginBottom: '40px' }}>
+        <h1>Supply Chain Builder</h1>
+        <p style={{ marginTop: '12px' }}>Learn how supply chains work by building one</p>
+      </div>
+
+      <p className="welcome-subtitle">
+        A supply chain is the journey your product takes from factory to customer. It includes suppliers, manufacturers, warehouses, transportation, and delivery. <strong>Good supply chains are fast, cheap, and reliable. Great supply chains balance all three.</strong>
+      </p>
+
+      <p className="welcome-subtitle" style={{ color: '#00d4ff' }}>
+        Let's build one together. You'll make decisions about suppliers, factories, warehouses, shipping, and inventory—and see how each choice affects your business.
+      </p>
+
+      <button className="btn btn-large" onClick={onStart}>
+        Start Building
+      </button>
+    </div>
+  </div>
+);
+
+const CompanyIntro = ({ company, onContinue }) => (
+  <div className="container">
+    <div className="header">
+      <h1>{company.name}</h1>
+      <p>Building your supply chain</p>
+    </div>
+
+    <div className="card">
+      <div className="section-title">Your Company</div>
+
+      <div className="company-info">
+        <div className="info-card">
+          <div className="info-label">Industry</div>
+          <div className="info-value">{company.industry}</div>
+        </div>
+        <div className="info-card">
+          <div className="info-label">Main Product</div>
+          <div className="info-value">{company.products[0]}</div>
+        </div>
+        <div className="info-card">
+          <div className="info-label">Countries Served</div>
+          <div className="info-value">{company.countriesServed.length}</div>
+        </div>
+        <div className="info-card">
+          <div className="info-label">Demand Level</div>
+          <div className="info-value">{company.demand}</div>
+        </div>
+      </div>
+
+      <p style={{ color: '#a0aac0', lineHeight: '1.7', marginBottom: '24px' }}>
+        You're running {company.name}, which makes {company.products[0]}. You serve customers across {company.countriesServed.join(', ')}, and demand is currently <strong>{company.demand.toLowerCase()}</strong>.
+        <br/><br/>
+        Your challenge: Build an efficient, reliable supply chain that keeps costs low, customers happy, and risks under control. Let's start with your suppliers.
+      </p>
+
+      <button className="btn btn-large" onClick={onContinue}>
+        Design Suppliers
+      </button>
+    </div>
+  </div>
+);
+
+const SupplierChoice = ({ onChoice, onMetrics }) => (
+  <div className="container">
+    <div className="step-counter">Step 1 of 5: Suppliers</div>
+    <div className="section-title">How Many Suppliers Should You Have?</div>
+
+    <div className="concept-box">
+      <div className="concept-title">📚 What Are Suppliers?</div>
+      <div className="concept-text">
+        Suppliers are companies that provide raw materials (like plastic, metal, or chemicals) that you need to make your products.
+      </div>
+    </div>
+
+    <div className="choice-grid">
+      <div className="choice-card" onClick={() => {
+        onChoice('single-supplier');
+        onMetrics({ cost: -15, speed: 10, risk: 25, satisfaction: 5, sustainability: 0 });
+      }}>
+        <div className="choice-title">Single Supplier</div>
+        <div className="choice-desc">One reliable partner provides everything you need</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Lowest costs (bulk discount). ❌ High risk (if they fail, you fail). ❌ Less negotiating power.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('dual-supplier');
+        onMetrics({ cost: 0, speed: 5, risk: 10, satisfaction: 10, sustainability: 5 });
+      }}>
+        <div className="choice-title">Dual Suppliers</div>
+        <div className="choice-desc">Two suppliers for the same materials—you diversify risk</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Backup if one fails. ✅ Price competition between them. ❌ Slightly higher costs.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('multiple-suppliers');
+        onMetrics({ cost: 20, speed: -5, risk: -20, satisfaction: 15, sustainability: 10 });
+      }}>
+        <div className="choice-title">Multiple Suppliers (4+)</div>
+        <div className="choice-desc">Many suppliers, each specialized in different materials</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Maximum resilience. ✅ Best prices. ✅ Specialized expertise. ❌ Complex to manage.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const FactoryChoice = ({ onChoice, onMetrics }) => (
+  <div className="container">
+    <div className="step-counter">Step 2 of 5: Manufacturing</div>
+    <div className="section-title">Where Should You Manufacture?</div>
+
+    <div className="concept-box">
+      <div className="concept-title">📚 What Is a Factory?</div>
+      <div className="concept-text">
+        A factory is where raw materials are turned into finished products. Location determines costs, speed, and risk.
+      </div>
+    </div>
+
+    <div className="choice-grid">
+      <div className="choice-card" onClick={() => {
+        onChoice('single-country');
+        onMetrics({ cost: -20, speed: 15, risk: 30, satisfaction: 5, sustainability: -10 });
+      }}>
+        <div className="choice-title">Single Country</div>
+        <div className="choice-desc">One factory in a low-cost country (e.g., China, Vietnam)</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Lowest production costs. ❌ Long shipping times. ❌ Vulnerable to local disruptions.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('regional');
+        onMetrics({ cost: 5, speed: 5, risk: 10, satisfaction: 15, sustainability: 0 });
+      }}>
+        <div className="choice-title">Regional Hub</div>
+        <div className="choice-desc">Factories in multiple regions (Asia, Americas, Europe)</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Faster delivery to regional customers. ✅ Risk spread across regions. ❌ Higher costs per unit.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('local');
+        onMetrics({ cost: 30, speed: 20, risk: -25, satisfaction: 20, sustainability: 15 });
+      }}>
+        <div className="choice-title">Local (Near Customers)</div>
+        <div className="choice-desc">Factories close to where customers are</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Fastest delivery. ✅ Easy to control quality. ❌ Most expensive to operate.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const WarehouseChoice = ({ onChoice, onMetrics }) => (
+  <div className="container">
+    <div className="step-counter">Step 3 of 5: Warehouses</div>
+    <div className="section-title">How Many Warehouses Do You Need?</div>
+
+    <div className="concept-box">
+      <div className="concept-title">📚 What Is a Warehouse?</div>
+      <div className="concept-text">
+        Warehouses are storage facilities where finished products wait before being shipped to customers. More warehouses = faster delivery, but higher costs.
+      </div>
+    </div>
+
+    <div className="choice-grid">
+      <div className="choice-card" onClick={() => {
+        onChoice('centralized');
+        onMetrics({ cost: -25, speed: -15, risk: 15, satisfaction: -10, sustainability: 5 });
+      }}>
+        <div className="choice-title">One Central Warehouse</div>
+        <div className="choice-desc">All products stored in one location</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Lowest warehouse costs. ❌ Slower delivery to distant customers. ❌ Single point of failure.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('regional-hubs');
+        onMetrics({ cost: 10, speed: 10, risk: -5, satisfaction: 15, sustainability: -5 });
+      }}>
+        <div className="choice-title">Regional Hubs (3-4)</div>
+        <div className="choice-desc">Warehouses in major regions for faster delivery</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Balanced cost and speed. ✅ Reduced risk. ✅ Good customer satisfaction.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('distributed');
+        onMetrics({ cost: 35, speed: 25, risk: -30, satisfaction: 25, sustainability: -10 });
+      }}>
+        <div className="choice-title">Distributed (10+)</div>
+        <div className="choice-desc">Warehouses in every major city</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Fastest delivery possible. ✅ Highest resilience. ❌ Very expensive to operate.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const TransportChoice = ({ onChoice, onMetrics }) => (
+  <div className="container">
+    <div className="step-counter">Step 4 of 5: Transportation</div>
+    <div className="section-title">How Do You Ship Your Products?</div>
+
+    <div className="concept-box">
+      <div className="concept-title">📚 What Is Transportation?</div>
+      <div className="concept-text">
+        Transportation is how products move from factories to warehouses to customers. Different modes (truck, ship, train, plane) have different costs and speeds.
+      </div>
+    </div>
+
+    <div className="choice-grid">
+      <div className="choice-card" onClick={() => {
+        onChoice('road');
+        onMetrics({ cost: 5, speed: 5, risk: -10, satisfaction: 10, sustainability: -15 });
+      }}>
+        <div className="choice-title">Road (Trucks)</div>
+        <div className="choice-desc">Flexible, door-to-door delivery</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Fast and flexible. ✅ Can reach anywhere. ❌ Higher fuel costs. ❌ Bad for environment.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('sea');
+        onMetrics({ cost: -25, speed: -20, risk: 10, satisfaction: -5, sustainability: 20 });
+      }}>
+        <div className="choice-title">Sea (Ships)</div>
+        <div className="choice-desc">Huge volumes, long distances, cheapest option</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Cheapest per unit. ✅ Can handle huge volumes. ✅ Eco-friendly. ❌ Slow (weeks).</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('mixed');
+        onMetrics({ cost: 0, speed: 0, risk: -5, satisfaction: 15, sustainability: 5 });
+      }}>
+        <div className="choice-title">Mixed Mode (Sea + Road)</div>
+        <div className="choice-desc">Ships for long distances, trucks for last-mile delivery</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Good balance of cost and speed. ✅ More resilient. ✅ Moderate environmental impact.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('air');
+        onMetrics({ cost: 35, speed: 30, risk: -20, satisfaction: 30, sustainability: -30 });
+      }}>
+        <div className="choice-title">Air (Planes)</div>
+        <div className="choice-desc">Fastest option, extremely expensive</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Fastest delivery possible. ❌ Most expensive. ❌ Bad for environment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const InventoryChoice = ({ onChoice, onMetrics }) => (
+  <div className="container">
+    <div className="step-counter">Step 5 of 5: Inventory</div>
+    <div className="section-title">How Much Inventory Should You Keep?</div>
+
+    <div className="concept-box">
+      <div className="concept-title">📚 What Is Inventory?</div>
+      <div className="concept-text">
+        Inventory is the stock of products you keep ready to sell. Too little = you run out and customers are unhappy. Too much = you waste money storing things that don't sell.
+      </div>
+    </div>
+
+    <div className="choice-grid">
+      <div className="choice-card" onClick={() => {
+        onChoice('just-in-time');
+        onMetrics({ cost: -30, speed: -15, risk: 35, satisfaction: -15, sustainability: 10 });
+      }}>
+        <div className="choice-title">Just-In-Time (JIT)</div>
+        <div className="choice-desc">Minimal stock, order only when needed</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Lowest storage costs. ✅ Less waste. ❌ High risk if demand spikes. ❌ Customers unhappy if out of stock.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('balanced');
+        onMetrics({ cost: 0, speed: 5, risk: 0, satisfaction: 20, sustainability: 0 });
+      }}>
+        <div className="choice-title">Balanced (30-45 days)</div>
+        <div className="choice-desc">Hold enough inventory to cover typical demand</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Good customer satisfaction. ✅ Reasonable costs. ✅ Some buffer for surprises.</div>
+        </div>
+      </div>
+
+      <div className="choice-card" onClick={() => {
+        onChoice('high-stock');
+        onMetrics({ cost: 25, speed: 20, risk: -30, satisfaction: 25, sustainability: -10 });
+      }}>
+        <div className="choice-title">High Stock (60+ days)</div>
+        <div className="choice-desc">Keep large amounts in warehouses at all times</div>
+        <div className="impact-box">
+          <div className="impact-title">Trade-offs</div>
+          <div className="impact-text">✅ Never run out. ✅ Maximum customer satisfaction. ❌ High storage costs. ❌ Products may become obsolete.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const FinalDashboard = ({ choices, metrics, company, onRestart }) => {
+  const score = Math.round(
+    Math.max(0, 100 - Math.abs(metrics.cost) + Math.abs(metrics.speed) - Math.abs(metrics.risk) + Math.abs(metrics.satisfaction) + Math.abs(metrics.sustainability))
+  );
+
+  const strengths = [];
+  const weaknesses = [];
+  const risks = [];
+
+  if (metrics.cost < 0) strengths.push('Low-cost supply chain');
+  if (metrics.cost > 15) weaknesses.push('High operating costs');
+
+  if (metrics.speed > 10) strengths.push('Fast delivery to customers');
+  if (metrics.speed < -10) weaknesses.push('Slow delivery times');
+
+  if (metrics.risk < 0) strengths.push('Diversified risk');
+  if (metrics.risk > 15) {
+    weaknesses.push('Concentrated risk');
+    risks.push('Single-point failure risk');
+  }
+
+  if (metrics.satisfaction > 15) strengths.push('High customer satisfaction');
+  if (metrics.satisfaction < 0) weaknesses.push('Low customer satisfaction');
+
+  if (metrics.sustainability > 5) strengths.push('Eco-friendly operations');
+  if (metrics.sustainability < -10) weaknesses.push('High environmental impact');
+
+  const improvements = [
+    choices.supplier === 'single-supplier' ? 'Add a backup supplier to reduce risk' : 'Your supplier strategy is solid',
+    choices.transport === 'air' ? 'Consider mixed-mode shipping to reduce costs' : 'Your shipping strategy is efficient',
+    choices.warehouse === 'centralized' ? 'Add regional warehouses for faster delivery' : 'Your warehouse network is well-positioned',
+  ];
+
+  return (
+    <div className="container">
+      <div className="header">
+        <h1>Supply Chain Built</h1>
+        <p>Your final design and recommendations</p>
+      </div>
+
+      <div className="card">
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div className="final-score">{score}</div>
+          <div className="score-label">Overall Supply Chain Score</div>
+        </div>
+
+        <div className="metrics-grid" style={{ marginBottom: '32px' }}>
+          <div className="metric-card">
+            <div className="metric-card-value">{Math.max(0, Math.min(100, 100 + metrics.cost))}</div>
+            <div className="metric-card-label">Cost Efficiency</div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-card-value">{Math.max(0, Math.min(100, 50 + metrics.speed))}</div>
+            <div className="metric-card-label">Delivery Speed</div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-card-value">{Math.max(0, Math.min(100, 100 - metrics.risk))}</div>
+            <div className="metric-card-label">Risk Level</div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-card-value">{Math.max(0, Math.min(100, 50 + metrics.satisfaction))}</div>
+            <div className="metric-card-label">Customer Satisfaction</div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-card-value">{Math.max(0, Math.min(100, 50 + metrics.sustainability))}</div>
+            <div className="metric-card-label">Sustainability</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="section-title">Your Design Choices</div>
+        <div className="company-info">
+          <div className="info-card">
+            <div className="info-label">Suppliers</div>
+            <div className="info-value">{choices.supplier}</div>
+          </div>
+          <div className="info-card">
+            <div className="info-label">Factories</div>
+            <div className="info-value">{choices.factory}</div>
+          </div>
+          <div className="info-card">
+            <div className="info-label">Warehouses</div>
+            <div className="info-value">{choices.warehouse}</div>
+          </div>
+          <div className="info-card">
+            <div className="info-label">Transport</div>
+            <div className="info-value">{choices.transport}</div>
+          </div>
+          <div className="info-card">
+            <div className="info-label">Inventory</div>
+            <div className="info-value">{choices.inventory}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="section-title">Strengths</div>
+        {strengths.length > 0 ? strengths.map((s, i) => (
+          <div key={i} className="feedback-card" style={{ marginBottom: '12px' }}>
+            <div className="feedback-text">✅ {s}</div>
+          </div>
+        )) : <div className="feedback-text">No major strengths identified</div>}
+      </div>
+
+      <div className="card">
+        <div className="section-title">Weaknesses</div>
+        {weaknesses.length > 0 ? weaknesses.map((w, i) => (
+          <div key={i} className="feedback-card" style={{ marginBottom: '12px', borderLeft: '4px solid #ff6666' }}>
+            <div className="feedback-text">⚠️ {w}</div>
+          </div>
+        )) : <div className="feedback-text">No major weaknesses identified</div>}
+      </div>
+
+      <div className="card">
+        <div className="section-title">Biggest Risk</div>
+        <div className="feedback-card">
+          <div className="feedback-text">
+            {risks.length > 0 ? risks[0] : 'Your supply chain is resilient with minimal single-point failures.'}
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="section-title">Three Practical Improvements</div>
+        {improvements.map((imp, i) => (
+          <div key={i} className="feedback-card" style={{ marginBottom: '12px' }}>
+            <div className="feedback-text">{i + 1}. {imp}</div>
+          </div>
+        ))}
+      </div>
+
+      <button className="btn btn-large" onClick={onRestart} style={{ backgroundColor: '#0099cc' }}>
+        🔄 Build Another Supply Chain
+      </button>
+    </div>
+  );
+};
+
+// MAIN APP
+const App = () => {
+  const [stage, setStage] = useState('welcome');
+  const [company, setCompany] = useState(null);
+  const [metrics, setMetrics] = useState({ cost: 0, speed: 0, risk: 0, satisfaction: 0, sustainability: 0 });
+  const [choices, setChoices] = useState({});
+
+  const startSimulation = () => {
+    const newCompany = generateCompany();
+    setCompany(newCompany);
+    setMetrics({ cost: 0, speed: 0, risk: 0, satisfaction: 0, sustainability: 0 });
+    setChoices({});
+    setStage('intro');
+  };
+
+  const updateMetrics = (delta) => {
+    setMetrics(prev => ({
+      cost: prev.cost + delta.cost,
+      speed: prev.speed + delta.speed,
+      risk: prev.risk + delta.risk,
+      satisfaction: prev.satisfaction + delta.satisfaction,
+      sustainability: prev.sustainability + delta.sustainability,
+    }));
+  };
+
+  const handleSupplier = (choice) => {
+    setChoices(prev => ({ ...prev, supplier: choice }));
+    setStage('factory');
+  };
+
+  const handleFactory = (choice) => {
+    setChoices(prev => ({ ...prev, factory: choice }));
+    setStage('warehouse');
+  };
+
+  const handleWarehouse = (choice) => {
+    setChoices(prev => ({ ...prev, warehouse: choice }));
+    setStage('transport');
+  };
+
+  const handleTransport = (choice) => {
+    setChoices(prev => ({ ...prev, transport: choice }));
+    setStage('inventory');
+  };
+
+  const handleInventory = (choice) => {
+    setChoices(prev => ({ ...prev, inventory: choice }));
+    setStage('final');
+  };
+
+  const handleRestart = () => {
+    setStage('welcome');
+    setCompany(null);
+    setMetrics({ cost: 0, speed: 0, risk: 0, satisfaction: 0, sustainability: 0 });
+    setChoices({});
+  };
+
+  return (
+    <div className="app">
+      {stage === 'welcome' && <WelcomeScreen onStart={startSimulation} />}
+      {stage === 'intro' && <CompanyIntro company={company} onContinue={() => setStage('supplier')} />}
+      {stage === 'supplier' && <SupplierChoice onChoice={handleSupplier} onMetrics={updateMetrics} />}
+      {stage === 'factory' && <FactoryChoice onChoice={handleFactory} onMetrics={updateMetrics} />}
+      {stage === 'warehouse' && <WarehouseChoice onChoice={handleWarehouse} onMetrics={updateMetrics} />}
+      {stage === 'transport' && <TransportChoice onChoice={handleTransport} onMetrics={updateMetrics} />}
+      {stage === 'inventory' && <InventoryChoice onChoice={handleInventory} onMetrics={updateMetrics} />}
+      {stage === 'final' && <FinalDashboard choices={choices} metrics={metrics} company={company} onRestart={handleRestart} />}
+    </div>
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById('root'));
+</script>
+</body>
+</html>
