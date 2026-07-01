@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Supply Chain Control Tower</title>
+<style>
+/* ============================================
+   RESET & GLOBALS
+   ============================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #0a0e27 0%, #141829 100%);
+  color: #e0e6ed;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+/* ============================================
+   CONTAINER & LAYOUT
+   ============================================ */
+#app {
+  width: 100%;
+  max-width: 1600px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(10, 14, 39, 0.8);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.05);
+  padding: 16px;
+  overflow: hidden;
+}
+
+/* ============================================
+   HEADER & TITLE
+   ============================================ */
+.header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.header h1 {
+  font-size: clamp(20px, 4vw, 32px);
+  font-weight: 800;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 2px;
+}
+
+.header p {
+  font-size: 12px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ============================================
+   KPI DASHBOARD
+   ============================================ */
+.kpi-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.kpi-card {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(0, 212, 255, 0.02));
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: subtleGlow 2s ease-in-out infinite;
+}
+
+.kpi-card:hover {
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+}
+
+.kpi-card.warning {
+  border-color: rgba(255, 152, 0, 0.5);
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.2);
+}
+
+.kpi-card.critical {
+  border-color: rgba(255, 68, 68, 0.5);
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
+}
+
+.kpi-label {
+  font-size: 10px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #00d4ff;
+  font-family: 'Courier New', monospace;
+}
+
+.kpi-card.critical .kpi-value {
+  color: #ff4444;
+}
+
+.kpi-card.warning .kpi-value {
+  color: #ff9800;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes subtleGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 212, 255, 0.1); }
+  50% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.2); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-critical {
+  animation: pulse 0.8s ease-in-out infinite;
+}
+
+/* ============================================
+   MAIN CONTENT GRID
+   ============================================ */
+.main-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ============================================
+   ALERTS SECTION
+   ============================================ */
+.alerts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.alerts-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alerts-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 6px;
+}
+
+.alerts-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.alerts-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.alerts-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.3);
+  border-radius: 3px;
+}
+
+.alerts-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 255, 0.5);
+}
+
+.alert-item {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border-left: 4px solid #00d4ff;
+  border-radius: 6px;
+  padding: 12px;
+  animation: slideIn 0.4s ease;
+  transition: all 0.2s ease;
+}
+
+.alert-item:hover {
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.15);
+  transform: translateX(4px);
+}
+
+.alert-item.critical {
+  border-left-color: #ff4444;
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.alert-item.critical .alert-icon {
+  color: #ff4444;
+}
+
+.alert-item.warning {
+  border-left-color: #ff9800;
+  background: rgba(255, 152, 0, 0.05);
+}
+
+.alert-item.warning .alert-icon {
+  color: #ff9800;
+}
+
+.alert-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.alert-icon {
+  font-size: 16px;
+  color: #00d4ff;
+}
+
+.alert-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #e0e6ed;
+  flex: 1;
+  margin-left: 8px;
+}
+
+.alert-priority {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+}
+
+.alert-item.critical .alert-priority {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+.alert-item.warning .alert-priority {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+}
+
+.alert-description {
+  font-size: 11px;
+  color: #a0aac0;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.alert-impact {
+  font-size: 10px;
+  color: #ff9800;
+  margin-bottom: 8px;
+}
+
+.alert-timer {
+  font-size: 10px;
+  color: #a0aac0;
+  margin-bottom: 8px;
+}
+
+.alert-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.action-btn {
+  background: rgba(0, 212, 255, 0.15);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.action-btn:hover {
+  background: rgba(0, 212, 255, 0.3);
+  border-color: rgba(0, 212, 255, 0.6);
+  transform: scale(1.02);
+}
+
+.action-btn:active {
+  transform: scale(0.98);
+}
+
+.action-btn.negative {
+  background: rgba(255, 68, 68, 0.15);
+  color: #ff4444;
+  border-color: rgba(255, 68, 68, 0.3);
+}
+
+.action-btn.negative:hover {
+  background: rgba(255, 68, 68, 0.3);
+  border-color: rgba(255, 68, 68, 0.6);
+}
+
+/* ============================================
+   RIGHT SIDEBAR
+   ============================================ */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.timer-display {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.05));
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+}
+
+.timer-display.warning {
+  border-color: rgba(255, 152, 0, 0.5);
+}
+
+.timer-display.critical {
+  border-color: rgba(255, 68, 68, 0.5);
+}
+
+.timer-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #00d4ff;
+  font-family: 'Courier New', monospace;
+  line-height: 1;
+}
+
+.timer-display.critical .timer-value {
+  color: #ff4444;
+}
+
+.timer-label {
+  font-size: 10px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.event-log {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 6px;
+  padding: 10px;
+  flex: 1;
+  overflow-y: auto;
+  font-size: 10px;
+  font-family: 'Courier New', monospace;
+}
+
+.event-log::-webkit-scrollbar {
+  width: 4px;
+}
+
+.event-log::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.event-log::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.3);
+}
+
+.event-entry {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  color: #a0aac0;
+  line-height: 1.3;
+}
+
+.event-entry:last-child {
+  border-bottom: none;
+}
+
+.event-entry.success {
+  color: #00cc88;
+}
+
+.event-entry.warning {
+  color: #ff9800;
+}
+
+.event-entry.error {
+  color: #ff4444;
+}
+
+/* ============================================
+   CONTROLS
+   ============================================ */
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+}
+
+.control-btn {
+  background: rgba(0, 212, 255, 0.15);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.control-btn:hover {
+  background: rgba(0, 212, 255, 0.3);
+  border-color: rgba(0, 212, 255, 0.6);
+}
+
+.control-btn.pause {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ff9800;
+  border-color: rgba(255, 152, 0, 0.3);
+}
+
+.control-btn.pause:hover {
+  background: rgba(255, 152, 0, 0.3);
+  border-color: rgba(255, 152, 0, 0.6);
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: linear-gradient(135deg, #0a0e27 0%, #141829 100%);
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  padding: 32px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+}
+
+.modal h2 {
+  font-size: 28px;
+  color: #00d4ff;
+  margin-bottom: 16px;
+}
+
+.modal p {
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+.modal ul {
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.modal li {
+  font-size: 13px;
+  color: #a0aac0;
+  margin-bottom: 8px;
+}
+
+.modal-close {
+  background: rgba(0, 212, 255, 0.15);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+/* ============================================
+   END GAME SCREEN
+   ============================================ */
+.end-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #0a0e27 0%, #141829 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.end-content {
+  text-align: center;
+  max-width: 600px;
+}
+
+.end-content h1 {
+  font-size: 48px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+.end-content .score {
+  font-size: 64px;
+  font-weight: 900;
+  color: #00d4ff;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 8px;
+}
+
+.end-content .grade {
+  font-size: 32px;
+  font-weight: 800;
+  color: #00cc88;
+  margin-bottom: 24px;
+}
+
+.end-content .summary {
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  font-size: 13px;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  color: #a0aac0;
+}
+
+.summary-value {
+  color: #00d4ff;
+  font-weight: 700;
+}
+
+.end-message {
+  background: rgba(0, 212, 255, 0.05);
+  border-left: 4px solid #00d4ff;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.6;
+}
+
+.play-again-btn {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: #0a0e27;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.play-again-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .kpi-section {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  #app {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .kpi-section {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .kpi-card {
+    padding: 8px;
+  }
+
+  .kpi-label {
+    font-size: 8px;
+  }
+
+  .kpi-value {
+    font-size: 18px;
+  }
+
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .alert-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .modal {
+    padding: 24px;
+  }
+
+  .end-content h1 {
+    font-size: 36px;
+  }
+
+  .end-content .score {
+    font-size: 48px;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="header">
+    <h1>🎮 AI Supply Chain Control Tower</h1>
+    <p>Head of Operations • Real-Time Decision Center</p>
+  </div>
+
+  <!-- KPI DASHBOARD -->
+  <div class="kpi-section">
+    <div class="kpi-card">
+      <div class="kpi-label">Service Level</div>
+      <div class="kpi-value" id="kpi-service">100%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Customer Satisfaction</div>
+      <div class="kpi-value" id="kpi-satisfaction">100%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Inventory Health</div>
+      <div class="kpi-value" id="kpi-inventory">100%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Transportation Efficiency</div>
+      <div class="kpi-value" id="kpi-transport">100%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Operating Cost</div>
+      <div class="kpi-value" id="kpi-cost">$0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Revenue Protected</div>
+      <div class="kpi-value" id="kpi-revenue">$0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Operations Score</div>
+      <div class="kpi-value" id="kpi-score">0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Time Remaining</div>
+      <div class="kpi-value" id="kpi-time">3:00</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- ALERTS SECTION -->
+    <div class="alerts-section">
+      <div class="alerts-header">📡 INCOMING OPERATIONAL ALERTS</div>
+      <div class="alerts-container" id="alertsContainer"></div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="sidebar">
+      <!-- TIMER -->
+      <div class="sidebar-section">
+        <div class="timer-display" id="timerDisplay">
+          <div class="timer-value" id="timerValue">3:00</div>
+          <div class="timer-label">Time Remaining</div>
+        </div>
+      </div>
+
+      <!-- EVENT LOG -->
+      <div class="sidebar-section" style="flex: 1;">
+        <div class="sidebar-title">📋 Event Log</div>
+        <div class="event-log" id="eventLog"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="control-btn" onclick="toggleHelp()">? Help</button>
+    <button class="control-btn pause" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
+    <button class="control-btn" onclick="toggleSound()">🔔 Sound</button>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal-overlay hidden" id="helpModal" onclick="if(event.target === this) toggleHelp()">
+  <div class="modal">
+    <h2>📖 How to Play</h2>
+    <p><strong>You are the Head of Operations</strong> managing a global supply chain. Your job is to respond to incoming alerts and make decisions that keep the operation running smoothly.</p>
+    
+    <h3 style="color: #00d4ff; margin-top: 16px; margin-bottom: 8px;">Your Goals:</h3>
+    <ul>
+      <li>Maintain high Service Level % (target: 95%+)</li>
+      <li>Keep Customer Satisfaction high (target: 85%+)</li>
+      <li>Manage Inventory Health (avoid stockouts)</li>
+      <li>Optimize Transportation Efficiency</li>
+      <li>Control Operating Costs</li>
+      <li>Maximize Revenue Protected</li>
+    </ul>
+
+    <h3 style="color: #00d4ff; margin-top: 16px; margin-bottom: 8px;">Alert Priority Levels:</h3>
+    <ul>
+      <li><strong style="color: #ff4444;">CRITICAL</strong> - Resolve immediately (time-sensitive)</li>
+      <li><strong style="color: #ff9800;">HIGH</strong> - Resolve soon to avoid escalation</li>
+      <li><strong style="color: #00d4ff;">MEDIUM</strong> - Standard operational decision</li>
+    </ul>
+
+    <h3 style="color: #00d4ff; margin-top: 16px; margin-bottom: 8px;">Decision Tips:</h3>
+    <ul>
+      <li>Each action has different consequences on your KPIs</li>
+      <li>Some decisions have delayed effects</li>
+      <li>Wrong decisions increase costs and reduce satisfaction</li>
+      <li>You can delay some decisions, but alerts escalate</li>
+      <li>Your final score is based on overall KPI performance</li>
+    </ul>
+
+    <button class="modal-close" onclick="toggleHelp()">Close</button>
+  </div>
+</div>
+
+<!-- END GAME SCREEN -->
+<div class="end-screen hidden" id="endScreen">
+  <div class="end-content">
+    <h1>🎯 OPERATION COMPLETE</h1>
+    <div class="score" id="finalScore">0</div>
+    <div class="grade" id="finalGrade">A+</div>
+
+    <div class="summary" id="finalSummary"></div>
+
+    <div class="end-message" id="endMessage"></div>
+
+    <button class="play-again-btn" onclick="location.reload()">Play Again</button>
+  </div>
+</div>
+
+<script>
+// ============================================
+// GAME STATE
+// ============================================
+let gameState = {
+  isPaused: false,
+  isGameOver: false,
+  soundOn: true,
+  score: 0,
+  timeRemaining: 180, // 3 minutes
+  
+  // KPIs
+  serviceLevel: 100,
+  satisfaction: 100,
+  inventory: 100,
+  transport: 100,
+  operatingCost: 0,
+  revenueProtected: 0,
+  
+  // Counters
+  alertsResolved: 0,
+  correctDecisions: 0,
+  wrongDecisions: 0,
+  totalDecisions: 0,
+  
+  // Active alerts
+  activeAlerts: [],
+  nextAlertId: 0,
+};
+
+// ============================================
+// ALERT TEMPLATES
+// ============================================
+const alertTemplates = [
+  {
+    title: '🚨 Port Congestion',
+    description: 'Port of Singapore is congested. 50+ vessels waiting. Your shipments delayed 5-7 days.',
+    priority: 'critical',
+    impact: 'Service: -15%, Satisfaction: -10%, Revenue at risk: $250K',
+    actions: [
+      { text: 'Expedite via Air', effect: { satisfaction: 15, cost: 40000, revenue: 25000, transport: 20 } },
+      { text: 'Reroute to Alternative Port', effect: { satisfaction: 5, cost: 8000, revenue: 5000, transport: -10 } },
+      { text: 'Negotiate with Port', effect: { satisfaction: 8, cost: 2000, revenue: 10000, transport: 5 } },
+      { text: 'Wait & Accept Delay', effect: { satisfaction: -20, cost: 0, revenue: -25000, transport: -15 } },
+    ]
+  },
+  {
+    title: '🚨 Supplier Delay',
+    description: 'Key supplier cannot ship materials on time. 2-week delay on critical components.',
+    priority: 'critical',
+    impact: 'Inventory: -20%, Service: -
