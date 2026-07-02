@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Think Like a Marketing Strategist: Grow This Brand</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f2e 100%);
+  color: #e0e6ed;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcf7f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 14px;
+  color: #a0aac0;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,107,107,0.2);
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.card:hover {
+  border-color: rgba(255,107,107,0.4);
+  box-shadow: 0 8px 32px rgba(255,107,107,0.1);
+}
+
+.btn {
+  background: linear-gradient(135deg, #ff6b6b, #ff5252);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(255,107,107,0.3);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: rgba(255,107,107,0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(255,107,107,0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(255,107,107,0.25);
+}
+
+.btn-large {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.choice-card {
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,107,107,0.15);
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.choice-card:hover {
+  border-color: rgba(255,107,107,0.5);
+  background: rgba(255,107,107,0.08);
+  transform: translateY(-4px);
+}
+
+.choice-card.selected {
+  border-color: #ff6b6b;
+  background: rgba(255,107,107,0.15);
+  box-shadow: 0 0 20px rgba(255,107,107,0.3);
+}
+
+.choice-emoji {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.choice-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin-bottom: 8px;
+}
+
+.choice-desc {
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.5;
+}
+
+.concept-box {
+  background: rgba(107,199,127,0.08);
+  border-left: 4px solid #6bcf7f;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.concept-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6bcf7f;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.concept-text {
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.6;
+}
+
+.prompt-card {
+  background: rgba(217,76,76,0.08);
+  border-left: 4px solid #d94c4c;
+  padding: 16px;
+  border-radius: 6px;
+  margin-top: 20px;
+}
+
+.prompt-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #d94c4c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.prompt-text {
+  font-size: 12px;
+  color: #a0aac0;
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+  padding: 12px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.copy-btn {
+  background: rgba(217,76,76,0.2);
+  color: #d94c4c;
+  border: 1px solid rgba(217,76,76,0.3);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(217,76,76,0.3);
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #e0e6ed;
+  border-bottom: 2px solid rgba(255,107,107,0.3);
+  padding-bottom: 12px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+  transition: width 0.5s ease;
+}
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.welcome-content {
+  max-width: 700px;
+}
+
+.welcome-subtitle {
+  font-size: 16px;
+  color: #a0aac0;
+  margin-bottom: 32px;
+  line-height: 1.8;
+}
+
+.business-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.info-card {
+  background: rgba(255,107,107,0.08);
+  border: 1px solid rgba(255,107,107,0.2);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.info-label {
+  font-size: 11px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.info-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff6b6b;
+}
+
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.platform-item {
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,107,107,0.15);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.platform-item:hover {
+  border-color: rgba(255,107,107,0.5);
+  background: rgba(255,107,107,0.08);
+}
+
+.platform-item.selected {
+  border-color: #ff6b6b;
+  background: rgba(255,107,107,0.15);
+}
+
+.platform-emoji {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+
+.platform-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin-bottom: 4px;
+}
+
+.platform-reason {
+  font-size: 10px;
+  color: #a0aac0;
+}
+
+.pillar-item {
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,107,107,0.15);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pillar-item:hover {
+  border-color: rgba(255,107,107,0.5);
+  background: rgba(255,107,107,0.08);
+}
+
+.pillar-item.selected {
+  border-color: #ff6b6b;
+  background: rgba(255,107,107,0.15);
+}
+
+.pillar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin-bottom: 6px;
+}
+
+.pillar-desc {
+  font-size: 12px;
+  color: #a0aac0;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.pillar-purpose {
+  font-size: 11px;
+  color: #6bcf7f;
+  font-weight: 600;
+}
+
+.roadmap-week {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,107,107,0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.week-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin-bottom: 8px;
+}
+
+.week-goal {
+  font-size: 12px;
+  color: #a0aac0;
+  line-height: 1.5;
+}
+
+.event-card {
+  background: rgba(255,217,61,0.08);
+  border-left: 4px solid #ffd93d;
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.event-emoji {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.event-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffd93d;
+  margin-bottom: 8px;
+}
+
+.event-desc {
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.response-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.response-btn {
+  background: rgba(255,107,107,0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(255,107,107,0.3);
+  padding: 12px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.response-btn:hover {
+  background: rgba(255,107,107,0.25);
+  border-color: rgba(255,107,107,0.5);
+}
+
+.report-section {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,107,107,0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.report-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin-bottom: 8px;
+}
+
+.report-content {
+  font-size: 13px;
+  color: #a0aac0;
+  line-height: 1.6;
+}
+
+.final-score {
+  font-size: 56px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.score-label {
+  font-size: 13px;
+  color: #a0aac0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 32px;
+  }
+
+  .choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 22px;
+  }
+
+  .platform-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .business-info {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState } = React;
+
+// DATA GENERATION
+const generateBusiness = () => {
+  const industries = ['SaaS', 'E-commerce', 'Fitness App', 'Podcast Network', 'Design Agency', 'Consulting Firm', 'Online Education', 'B2B Marketing'];
+  const audiences = ['Startups', 'Freelancers', 'Small Businesses', 'Enterprise', 'Millennials', 'Parents', 'Professionals', 'Students'];
+  const budgets = ['$0-2K/month', '$2-5K/month', '$5-10K/month', '$10-25K/month'];
+  const challenges = ['Low brand awareness', 'High customer acquisition cost', 'Weak social media presence', 'Poor engagement rates', 'Unclear value proposition'];
+
+  return {
+    name: ['TechFlow', 'BrandBoost', 'GrowthLabs', 'MarketMax', 'ScaleUp'][Math.floor(Math.random()*5)],
+    industry: industries[Math.floor(Math.random()*industries.length)],
+    targetAudience: audiences[Math.floor(Math.random()*audiences.length)],
+    budget: budgets[Math.floor(Math.random()*budgets.length)],
+    challenge: challenges[Math.floor(Math.random()*challenges.length)],
+    competitors: ['Competitor A', 'Competitor B', 'Competitor C'],
+  };
+};
+
+// COMPONENTS
+const WelcomeScreen = ({ onModeSelect }) => (
+  <div className="welcome-screen">
+    <div className="welcome-content">
+      <div className="header" style={{ marginBottom: '40px' }}>
+        <h1>Think Like a Marketing Strategist</h1>
+        <p>Learn how marketers grow brands by building a real marketing strategy</p>
+      </div>
+
+      <p className="welcome-subtitle">
+        Marketing strategy isn't just posting on social media. It's understanding your audience, positioning your brand, choosing the right channels, and creating a plan that grows your business. Let's learn by doing.
+      </p>
+
+      <div className="choice-grid">
+        <div className="choice-card" onClick={() => onModeSelect('own-business')}>
+          <div className="choice-emoji">🏢</div>
+          <div className="choice-title">Use My Own Business</div>
+          <div className="choice-desc">You have an existing business. Let's build a strategy to grow it.</div>
+        </div>
+
+        <div className="choice-card" onClick={() => onModeSelect('personal-brand')}>
+          <div className="choice-emoji">🙋</div>
+          <div className="choice-title">Build My Personal Brand</div>
+          <div className="choice-desc">You don't have a business yet, but you have expertise. Let's turn you into a brand.</div>
+        </div>
+
+        <div className="choice-card" onClick={() => onModeSelect('new-client')}>
+          <div className="choice-emoji">🎲</div>
+          <div className="choice-title">A New Client Has Arrived</div>
+          <div className="choice-desc">Get a random business. Practice your strategy skills on a fresh challenge.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const BusinessSetup = ({ mode, onContinue }) => {
+  const [business, setBusiness] = useState(mode === 'new-client' ? generateBusiness() : null);
+  const [ownBusiness, setOwnBusiness] = useState('');
+  const [personalName, setPersonalName] = useState('');
+  const [personalNiche, setPersonalNiche] = useState('');
+
+  const handleContinue = () => {
+    if (mode === 'own-business' && ownBusiness) {
+      onContinue({ mode, name: ownBusiness, type: 'business' });
+    } else if (mode === 'personal-brand' && personalName && personalNiche) {
+      onContinue({ mode, name: personalName, niche: personalNiche, type: 'personal' });
+    } else if (mode === 'new-client' && business) {
+      onContinue({ mode, ...business, type: 'business' });
+    }
+  };
+
+  return (
+    <div className="container">
+      <div className="header">
+        <h1>Set Up Your Strategy</h1>
+        <p>{mode === 'own-business' ? 'Tell us about your business' : mode === 'personal-brand' ? 'Tell us about you' : 'Meet your new client'}</p>
+      </div>
+
+      <div className="card">
+        <div className="section-title">Business Details</div>
+
+        {mode === 'own-business' && (
+          <>
+            <div className="concept-box">
+              <div className="concept-title">📚 Why This Matters</div>
+              <div className="concept-text">Before we build a marketing strategy, we need to understand what we're marketing. Your business name, what you do, and who you serve are the foundation of everything else.</div>
+            </div>
+
+            <input 
+              type="text" 
+              placeholder="Your business name" 
+              value={ownBusiness}
+              onChange={(e) => setOwnBusiness(e.target.value)}
+              style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,107,107,0.3)', background: 'rgba(255,255,255,0.05)', color: '#e0e6ed', marginBottom: '20px' }}
+            />
+          </>
+        )}
+
+        {mode === 'personal-brand' && (
+          <>
+            <div className="concept-box">
+              <div className="concept-title">📚 Personal Branding Basics</div>
+              <div className="concept-text">Your personal brand is how the world knows you. It's built on your unique expertise, your story, and your perspective. The goal is to become known and trusted in your niche.</div>
+            </div>
+
+            <input 
+              type="text" 
+              placeholder="Your name" 
+              value={personalName}
+              onChange={(e) => setPersonalName(e.target.value)}
+              style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,107,107,0.3)', background: 'rgba(255,255,255,0.05)', color: '#e0e6ed', marginBottom: '12px' }}
+            />
+            <input 
+              type="text" 
+              placeholder="Your expertise (e.g., AI for Startups, Social Media Strategy, Design Thinking)" 
+              value={personalNiche}
+              onChange={(e) => setPersonalNiche(e.target.value)}
+              style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,107,107,0.3)', background: 'rgba(255,255,255,0.05)', color: '#e0e6ed', marginBottom: '20px' }}
+            />
+          </>
+        )}
+
+        {mode === 'new-client' && business && (
+          <>
+            <div className="business-info">
+              <div className="info-card">
+                <div className="info-label">Company</div>
+                <div className="info-value">{business.name}</div>
+              </div>
+              <div className="info-card">
+                <div className="info-label">Industry</div>
+                <div className="info-value">{business.industry}</div>
+              </div>
+              <div className="info-card">
+                <div className="info-label">Target Audience</div>
+                <div className="info-value">{business.targetAudience}</div>
+              </div>
+              <div className="info-card">
+                <div className="info-label">Budget</div>
+                <div className="info-value">{business.budget}</div>
+              </div>
+            </div>
+
+            <div className="concept-box">
+              <div className="concept-title">🎯 Your Challenge</div>
+              <div className="concept-text"><strong>{business.challenge}</strong> — This is what the company needs help solving.</div>
+            </div>
+          </>
+        )}
+
+        <button className="btn btn-large" onClick={handleContinue} disabled={
+          (mode === 'own-business' && !ownBusiness) ||
+          (mode === 'personal-brand' && (!personalName || !personalNiche)) ||
+          (mode === 'new-client' && !business)
+        }>
+          Continue to Audience Analysis
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const AudienceAnalysis = ({ business, onContinue }) => {
+  const [audience, setAudience] = useState('');
+  const [painPoints, setPainPoints] = useState('');
+
+  const handleContinue = () => {
+    if (audience && painPoints) {
+      onContinue({ audience, painPoints });
+    }
+  };
+
+  return (
+    <div className="container">
+      <div className="header">
+        <h1>Understand Your Audience</h1>
+        <p>Every marketing strategy starts with knowing who you're talking to</p>
+      </div>
+
+      <div className="card">
+        <div className="section-title">Audience Analysis</div>
+
+        <div className="concept-box">
+          <div className="concept-title">📚 Why Audience Research Matters</div>
+          <div className="concept-text">You can't market effectively to people you don't understand. Great marketers know their audience's pain points, goals, fears, and dreams. They use this insight to create messages that resonate.</div>
+        </div>
+
+        <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#ff6b6b', fontWeight: '700' }}>Who is your ideal customer? (Be specific)</label>
+        <textarea 
+          placeholder="Example: Solopreneurs aged 25-40 who want to grow their business but don't have time to learn complex marketing tools..." 
+          value={audience}
+          onChange={(e) => setAudience(e.target.value)}
+          style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,107,107,0.3)', background: 'rgba(255,255,255,0.05)', color: '#e0e6ed', marginBottom: '20px', minHeight: '80px', fontFamily: 'inherit' }}
+        />
+
+        <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#ff6b6b', fontWeight: '700' }}>What are their biggest pain points? (Top 3-5)</label>
+        <textarea 
+          placeholder="Example: Overwhelmed by too many tools, Confused about where to start, Struggling to find time for marketing, Frustrated by lack of results..." 
+          value={painPoints}
+          onChange={(e) => setPainPoints(e.target.value)}
+          style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,107,107,0.3)', background: 'rgba(255,255,255,0.05)', color: '#e0e6ed', marginBottom: '20px', minHeight: '80px', fontFamily: 'inherit' }}
+        />
+
+        <div className="prompt-card">
+          <div className="prompt-title">💬 How to Ask Claude</div>
+          <div className="prompt-text">
+            "List 5 key pain points of [audience description] when it comes to [business challenge]. For each pain point, explain why it matters and how [my business] can solve it."
+          </div>
+          <button className="copy-btn" onclick="navigator.clipboard.writeText('List 5 key pain points of [audience description] when it comes to [business challenge]. For each pain point, explain why it matters and how [my business] can solve it.')">Copy Prompt</button>
+        </div>
+
+        <button className="btn btn-large"
