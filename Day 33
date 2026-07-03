@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Media Integrity Analyzer</title>
+<style>
+/* ============================================
+   CSS VARIABLES FOR THEMING
+   ============================================ */
+:root {
+  --primary: #ff6b35;
+  --primary-light: #ff8a5b;
+  --primary-dark: #e55a28;
+  --secondary: #004e89;
+  --accent: #1ac8ed;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --bg-dark: #0a0e27;
+  --bg-darker: #050a1a;
+  --text-light: #e0e6ed;
+  --text-muted: #a0aac0;
+  --border-color: rgba(255, 107, 53, 0.2);
+}
+
+:root.theme-blue {
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e40af;
+  --accent: #06b6d4;
+}
+
+:root.theme-purple {
+  --primary: #9333ea;
+  --primary-light: #a855f7;
+  --primary-dark: #7e22ce;
+  --accent: #ec4899;
+}
+
+:root.theme-green {
+  --primary: #16a34a;
+  --primary-light: #22c55e;
+  --primary-dark: #15803d;
+  --accent: #10b981;
+}
+
+:root.theme-claude {
+  --primary: #ff6b35;
+  --primary-light: #ff8a5b;
+  --primary-dark: #e55a28;
+  --accent: #1ac8ed;
+}
+
+/* ============================================
+   RESET & GLOBALS
+   ============================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+  color: var(--text-light);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body {
+  padding: 16px;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   THEME SELECTOR
+   ============================================ */
+.theme-selector {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.theme-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.theme-btn:hover {
+  transform: scale(1.1);
+}
+
+.theme-btn.active {
+  border-color: var(--text-light);
+  box-shadow: 0 0 16px rgba(255, 107, 53, 0.5);
+}
+
+.theme-orange { background: #ff6b35; }
+.theme-blue { background: #2563eb; }
+.theme-purple { background: #9333ea; }
+.theme-green { background: #16a34a; }
+
+/* ============================================
+   HEADER
+   ============================================ */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  margin-top: 40px;
+}
+
+.header h1 {
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ============================================
+   CARDS & CONTAINERS
+   ============================================ */
+.card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+}
+
+.card:hover {
+  border-color: rgba(255, 107, 53, 0.4);
+  box-shadow: 0 8px 32px rgba(255, 107, 53, 0.1);
+}
+
+.concept-box {
+  background: linear-gradient(135deg, rgba(42, 204, 113, 0.08), rgba(26, 200, 237, 0.05));
+  border-left: 4px solid var(--success);
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.concept-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--success);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.concept-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: rgba(255, 107, 53, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 107, 53, 0.25);
+}
+
+.btn-large {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.choice-btn {
+  background: rgba(255, 107, 53, 0.15);
+  color: var(--primary);
+  border: 2px solid rgba(255, 107, 53, 0.3);
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  margin: 6px;
+}
+
+.choice-btn:hover {
+  border-color: var(--primary);
+  background: rgba(255, 107, 53, 0.25);
+}
+
+.choice-btn.selected {
+  background: rgba(255, 107, 53, 0.3);
+  border-color: var(--primary);
+  box-shadow: 0 0 16px rgba(255, 107, 53, 0.3);
+}
+
+/* ============================================
+   METRICS DISPLAY
+   ============================================ */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 107, 53, 0.05));
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
+}
+
+.metric-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary);
+  font-family: 'Courier New', monospace;
+}
+
+.metric-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.metric-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.5s ease;
+}
+
+/* ============================================
+   CHALLENGE COMPONENTS
+   ============================================ */
+.headline-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.headline {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.article-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.click-question {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.choice-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.emotion-text {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.emotion-word {
+  background: rgba(243, 156, 18, 0.2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.emotion-word.selected {
+  background: rgba(244, 96, 54, 0.3);
+  color: #ff6b35;
+}
+
+/* ============================================
+   ANALYSIS RESULTS
+   ============================================ */
+.result-card {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.08), rgba(26, 200, 237, 0.05));
+  border-left: 4px solid var(--success);
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.result-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--success);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.result-content {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.highlighted {
+  background: rgba(255, 107, 53, 0.2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.warning-card {
+  background: linear-gradient(135deg, rgba(243, 156, 18, 0.08), rgba(244, 96, 54, 0.05));
+  border-left: 4px solid var(--warning);
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.warning-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--warning);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+/* ============================================
+   DASHBOARD
+   ============================================ */
+.score-display {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.final-score {
+  font-size: 64px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+  font-family: 'Courier New', monospace;
+}
+
+.score-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.lesson-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.lesson-number {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.lesson-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ============================================
+   PROGRESS & ANIMATION
+   ============================================ */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.5s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.4s ease;
+}
+
+.pulse {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  body {
+    padding: 12px;
+  }
+
+  .header {
+    margin-top: 50px;
+    margin-bottom: 24px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .metric-card {
+    padding: 12px;
+  }
+
+  .metric-value {
+    font-size: 22px;
+  }
+
+  .metric-label {
+    font-size: 9px;
+  }
+
+  .choice-group {
+    flex-direction: column;
+  }
+
+  .choice-btn {
+    width: 100%;
+    margin: 4px 0;
+  }
+
+  .theme-selector {
+    top: 50px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .final-score {
+    font-size: 48px;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-light);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- THEME SELECTOR -->
+<div class="theme-selector">
+  <button class="theme-btn theme-orange active" onclick="setTheme('theme-claude')" title="Claude Orange"></button>
+  <button class="theme-btn theme-blue" onclick="setTheme('theme-blue')" title="Blue"></button>
+  <button class="theme-btn theme-purple" onclick="setTheme('theme-purple')" title="Purple"></button>
+  <button class="theme-btn theme-green" onclick="setTheme('theme-green')" title="Green"></button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="header">
+    <h1>📰 Media Integrity Analyzer</h1>
+    <p>Learn to spot misleading headlines, emotional manipulation, and biased reporting</p>
+  </div>
+
+  <!-- WELCOME SCREEN -->
+  <div id="welcomeScreen" class="card">
+    <div class="section-title">Welcome to Your Media Literacy Journey</div>
+    
+    <div class="concept-box">
+      <div class="concept-title">🎓 What You'll Learn</div>
+      <div class="concept-text">
+        Media literacy is the ability to recognize when information is being manipulated or presented in a biased way. In this experience, you'll learn to spot red flags like exaggerated headlines, emotional manipulation, and targeted messaging. These skills help you make better decisions about what to believe and share.
+      </div>
+    </div>
+
+    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 20px;">
+      <strong>Why it matters:</strong> Every day, you encounter hundreds of pieces of media—news articles, social media posts, videos, advertisements. Some are trustworthy. Some are designed to manipulate you. Learning to tell the difference is one of the most important skills for modern life.
+    </p>
+
+    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px;">
+      You'll complete two interactive challenges that teach you real-world media literacy skills. Ready?
+    </p>
+
+    <button class="btn btn-large" onclick="startChallenge('headline')">Begin Challenge 1: Headline Detective</button>
+  </div>
+
+  <!-- METRICS DISPLAY -->
+  <div id="metricsSection" class="hidden">
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Headline Accuracy</div>
+        <div class="metric-value" id="headlineAccuracy">—</div>
+        <div class="metric-bar">
+          <div class="metric-bar-fill" id="headlineBar" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Source Reliability</div>
+        <div class="metric-value" id="sourceReliability">—</div>
+        <div class="metric-bar">
+          <div class="metric-bar-fill" id="sourceBar" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Emotional Manipulation</div>
+        <div class="metric-value" id="emotionalManip">—</div>
+        <div class="metric-bar">
+          <div class="metric-bar-fill" id="emotionalBar" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Audience Targeting</div>
+        <div class="metric-value" id="audienceTarget">—</div>
+        <div class="metric-bar">
+          <div class="metric-bar-fill" id="audienceBar" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 1: HEADLINE DETECTIVE -->
+  <div id="headlineChallenge" class="hidden">
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 50%"></div>
+    </div>
+
+    <div class="card slide-in">
+      <div class="section-title">Challenge 1: Headline Detective</div>
+
+      <div class="concept-box">
+        <div class="concept-title">🔍 The Concept</div>
+        <div class="concept-text">
+          Headlines are the first thing you read. They're often the only thing people read. Misleading headlines can distort reality, exaggerate claims, or omit important context. Great journalists write accurate headlines. Sensationalists write headlines that get clicks, whether they're true or not.
+        </div>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">
+        <strong>Your task:</strong> Read this headline and article. Then decide: Would you click this headline if you saw it on social media? And more importantly, what parts are exaggerated or misleading?
+      </p>
+
+      <div class="headline-section">
+        <div class="headline" id="generatedHeadline"></div>
+        <div class="article-text" id="generatedArticle"></div>
+      </div>
+
+      <div class="click-question">Would you click this headline?</div>
+      <div class="choice-group">
+        <button class="choice-btn" onclick="recordHeadlineClick('yes')">Yes, definitely</button>
+        <button class="choice-btn" onclick="recordHeadlineClick('maybe')">Maybe</button>
+        <button class="choice-btn" onclick="recordHeadlineClick('no')">No, seems clickbait</button>
+      </div>
+
+      <div class="click-question" style="margin-top: 20px;">Which parts of the headline are exaggerated or misleading?</div>
+      <textarea id="headlineAnalysis" placeholder="Look for: Extreme words like 'shocking', 'incredible', facts taken out of context, omitted details, or emotional language designed to provoke..." style="width: 100%; padding: 12px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-light); border-radius: 6px; margin-bottom: 20px; min-height: 80px; font-family: inherit;"></textarea>
+
+      <button class="btn btn-large" onclick="analyzeHeadline()">Reveal Analysis</button>
+    </div>
+
+    <div id="headlineResults" class="hidden">
+      <div class="card slide-in">
+        <div class="section-title">Your Analysis</div>
+
+        <div class="result-card">
+          <div class="result-title">📊 Headline Accuracy Score</div>
+          <div class="result-content" id="accuracyScore"></div>
+        </div>
+
+        <div class="result-card">
+          <div class="result-title">🚨 Exaggerated Elements</div>
+          <div class="result-content" id="exaggeratedElements"></div>
+        </div>
+
+        <div class="result-card">
+          <div class="result-title">💡 Why This Matters</div>
+          <div class="result-content" id="headlineExplanation"></div>
+        </div>
+
+        <div class="result-card">
+          <div class="result-title">✅ A Fair Rewrite</div>
+          <div class="result-content" id="fairHeadline"></div>
+        </div>
+
+        <div class="warning-card">
+          <div class="warning-title">🎯 Key Takeaway</div>
+          <div class="result-content" id="headlineTakeaway"></div>
+        </div>
+
+        <button class="btn btn-large" onclick="startChallenge('emotion')">Next: Challenge 2: Emotion Detector</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 2: EMOTION DETECTOR -->
+  <div id="emotionChallenge" class="hidden">
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 100%"></div>
+    </div>
+
+    <div class="card slide-in">
+      <div class="section-title">Challenge 2: Emotion Detector</div>
+
+      <div class="concept-box">
+        <div class="concept-title">❤️ The Concept</div>
+        <div class="concept-text">
+          Emotional manipulation is when words or images are used to make you feel something—usually anger, fear, or outrage—so you'll share, click, or believe something. Smart creators use emotion to connect you with their message. Manipulators use emotion to bypass your critical thinking.
+        </div>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">
+        <strong>Your task:</strong> Read this social media post. Notice how it makes you feel. Then identify which specific words or phrases triggered that emotion.
+      </p>
+
+      <div class="emotion-text" id="generatedPost"></div>
+
+      <div class="click-question">How did this post make you feel?</div>
+      <div class="choice-group">
+        <button class="choice-btn" onclick="recordEmotion('angry')">Angry / Outraged</button>
+        <button class="choice-btn" onclick="recordEmotion('sad')">Sad / Concerned</button>
+        <button class="choice-btn" onclick="recordEmotion('inspired')">Inspired / Hopeful</button>
+        <button class="choice-btn" onclick="recordEmotion('neutral')">Neutral / Informed</button>
+      </div>
+
+      <div class="click-question" style="margin-top: 20px;">Which words triggered that emotion?</div>
+      <textarea id="emotionAnalysis" placeholder="Look 
