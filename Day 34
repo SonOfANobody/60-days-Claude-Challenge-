@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Marketing Detective</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root {
+  --primary: #ff6b35;
+  --primary-light: #ff8a5b;
+  --primary-dark: #e55a28;
+  --secondary: #004e89;
+  --accent: #1ac8ed;
+  --success: #2ecc71;
+  --danger: #e74c3c;
+  --bg-dark: #0a0e27;
+  --bg-darker: #050a1a;
+  --text-light: #e0e6ed;
+  --text-muted: #a0aac0;
+  --board-bg: #2a2f4a;
+  --paper: #f5e6d3;
+  --pin-color: #e74c3c;
+}
+
+:root.theme-blue {
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e40af;
+  --accent: #06b6d4;
+}
+
+:root.theme-purple {
+  --primary: #9333ea;
+  --primary-light: #a855f7;
+  --primary-dark: #7e22ce;
+  --accent: #ec4899;
+}
+
+:root.theme-green {
+  --primary: #16a34a;
+  --primary-light: #22c55e;
+  --primary-dark: #15803d;
+  --accent: #10b981;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+  color: var(--text-light);
+  min-height: 100vh;
+}
+
+body {
+  padding: 16px;
+}
+
+#root {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.theme-selector {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.theme-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.theme-btn:hover {
+  transform: scale(1.1);
+}
+
+.theme-btn.active {
+  border-color: var(--text-light);
+  box-shadow: 0 0 16px rgba(255, 107, 53, 0.5);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+  margin-top: 20px;
+}
+
+.header h1 {
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.header p {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.corkboard {
+  background: linear-gradient(135deg, #3d3d2f 0%, #2a2a1f 100%);
+  border: 8px solid #1a1410;
+  border-radius: 4px;
+  padding: 32px;
+  min-height: 60vh;
+  position: relative;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 10px 40px rgba(0,0,0,0.7);
+}
+
+.corkboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,.05) 2px, rgba(255,255,255,.05) 4px),
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,.05) 2px, rgba(255,255,255,.05) 4px);
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  border-radius: 8px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+}
+
+.card:hover {
+  border-color: rgba(255, 107, 53, 0.4);
+  box-shadow: 0 8px 32px rgba(255, 107, 53, 0.1);
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+}
+
+.btn-large {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.sticky-note {
+  background: linear-gradient(135deg, var(--paper), #ead9c3);
+  border: none;
+  border-radius: 2px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  transform: rotate(var(--rotation, -2deg));
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sticky-note:hover {
+  transform: rotate(0deg) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.sticky-note::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 12px;
+  background: rgba(231, 76, 60, 0.3);
+  border-radius: 50% 50% 0 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sticky-note:hover::before {
+  opacity: 1;
+}
+
+.sticky-note h3 {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.sticky-note p {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.4;
+}
+
+.case-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  animation: slideIn 0.4s ease;
+}
+
+.case-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.info-box {
+  background: rgba(255, 107, 53, 0.1);
+  border-left: 4px solid var(--primary);
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.info-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.info-value {
+  font-size: 14px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.clue-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.clue-note {
+  background: var(--paper);
+  border-radius: 2px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transform: rotate(var(--rotation));
+  cursor: move;
+  transition: all 0.2s ease;
+}
+
+.clue-note:hover {
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  transform: rotate(0deg) scale(1.02);
+}
+
+.clue-note.correct {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+}
+
+.clue-note.incorrect {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.clue-note h4 {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.clue-note.correct h4,
+.clue-note.incorrect h4 {
+  color: white;
+}
+
+.clue-note p {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.clue-note.correct p,
+.clue-note.incorrect p {
+  color: white;
+}
+
+.answer-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  background: rgba(255,255,255,0.05);
+  color: var(--text-light);
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.metrics-chart {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-item {
+  background: rgba(255, 107, 53, 0.1);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'Courier New', monospace;
+}
+
+.learning-report {
+  background: linear-gradient(135deg, rgba(46,204,113,0.1), rgba(26,200,237,0.08));
+  border-left: 4px solid var(--success);
+  padding: 24px;
+  border-radius: 8px;
+  margin-top: 24px;
+}
+
+.learning-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--success);
+  margin-bottom: 16px;
+}
+
+.learning-item {
+  background: rgba(255,255,255,0.03);
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes confetti {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: fixed;
+  pointer-events: none;
+  animation: confetti 2s ease-out forwards;
+}
+
+@media (max-width: 768px) {
+  .corkboard {
+    padding: 16px;
+  }
+
+  .case-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .clue-container {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-chart {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .theme-selector {
+    top: 60px;
+    right: 12px;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text-light);
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="theme-selector">
+  <button class="theme-btn active" onclick="setTheme('theme-claude')" title="Claude Orange"></button>
+  <button class="theme-btn" onclick="setTheme('theme-blue')" title="Blue"></button>
+  <button class="theme-btn" onclick="setTheme('theme-purple')" title="Purple"></button>
+  <button class="theme-btn" onclick="setTheme('theme-green')" title="Green"></button>
+</div>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// MARKETING CASES DATABASE
+const marketingCases = [
+  {
+    id: 1,
+    company: 'TechFlow Solutions',
+    industry: 'B2B SaaS',
+    objective: 'Increase brand awareness among enterprise clients',
+    targetAudience: 'CIOs and VP of Operations at Fortune 500 companies',
+    channels: ['LinkedIn', 'Industry Conferences', 'Email', 'Content Marketing'],
+    budget: { linkedin: 30000, conferences: 35000, email: 5000, content: 10000 },
+    metrics: { reach: 150000, ctr: 2.1, engagement: 3500, conversions: 28, sales: 420000 },
+    comments: ['Great thought leadership', 'Expensive but worth it', 'Need more personalization'],
+    socialPerformance: 'Strong LinkedIn presence with 85K followers',
+    mistake: 'Overspending on industry conferences when LinkedIn was delivering 5x better ROI',
+    clues: ['LinkedIn had 2.8% CTR vs conference 0.6% CTR', 'Conference budget ($35k) could have funded 3 additional content pieces', 'CIO audience most active on LinkedIn during business hours'],
+    explanation: 'The company allocated 40% of budget to conferences that only reached 5% of their ideal audience. LinkedIn, costing half as much, reached 95% of their target CIOs with significantly better engagement. They ignored the data showing where their audience actually was.',
+    improvements: ['Shift 60% of conference budget to LinkedIn advertising', 'Create LinkedIn-exclusive content series', 'Use conference attendance for networking only, not primary spend']
+  },
+  {
+    id: 2,
+    company: 'FreshFood Co',
+    industry: 'E-commerce Food',
+    objective: 'Drive direct-to-consumer sales of organic products',
+    targetAudience: 'Health-conscious millennials aged 25-45',
+    channels: ['Instagram', 'TikTok', 'Google Ads', 'Email Newsletter'],
+    budget: { instagram: 20000, tiktok: 5000, google: 25000, email: 3000 },
+    metrics: { reach: 280000, ctr: 1.8, engagement: 8200, conversions: 142, sales: 185000 },
+    comments: ['Love the product!', 'Prices too high', 'Saw it on TikTok but not convinced'],
+    socialPerformance: 'Viral TikTok videos with 2.5M views, Instagram steady growth',
+    mistake: 'Under-investing in TikTok ($5k) where viral content was happening, over-relying on Google Ads for trend-based audience',
+    clues: ['TikTok 5k budget generated 2.5M views and 8% conversion rate', 'Google Ads 25k budget generated lower engagement from off-brand searchers', 'Younger audience (25-35) 3x more active on TikTok than Google'],
+    explanation: 'FreshFood had a viral success on TikTok but only allocated 5% of budget there. Google Ads, receiving 45% of budget, attracted older buyers less interested in organic products. They saw the viral success but didn\'t follow the audience.',
+    improvements: ['Increase TikTok budget to 30% based on viral success metrics', 'Create TikTok-first content strategy, repurpose on Instagram', 'Reduce Google Ads to 20%, focus on brand keywords only']
+  },
+  {
+    id: 3,
+    company: 'CloudPeak Analytics',
+    industry: 'Data Analytics Platform',
+    objective: 'Acquire new SMB customers through low-cost channels',
+    targetAudience: 'Small to medium business owners and analytics teams',
+    channels: ['YouTube Tutorials', 'Reddit Communities', 'Webinars', 'Paid Search'],
+    budget: { youtube: 8000, reddit: 2000, webinars: 15000, search: 20000 },
+    metrics: { reach: 95000, ctr: 3.2, engagement: 4100, conversions: 38, sales: 156000 },
+    comments: ['Your tutorials saved us money', 'Webinar was too long', 'Found you on Reddit and trusted the community'],
+    socialPerformance: 'Strong organic YouTube channel with 45K subscribers, active Reddit presence',
+    mistake: 'Expensive webinar hosting ($15k) when free YouTube tutorials were converting customers at 3x the cost',
+    clues: ['YouTube tutorials: 8k budget, 68% conversion rate', 'Webinars: 15k budget, 22% conversion rate', 'Reddit community discussions had highest trust score but minimal budget'],
+    explanation: 'CloudPeak invested heavily in polished webinars while their YouTube tutorials (which people actively searched for and trusted) were severely under-resourced. The customer comments revealed YouTube was the trusted authority. They were spending on fancy when people wanted helpful.',
+    improvements: ['Shift webinar budget to YouTube production quality', 'Create weekly tutorial series covering customer pain points', 'Allocate 5k to Reddit community management and AMAs']
+  },
+  {
+    id: 4,
+    company: 'Urban Fashion Collective',
+    industry: 'Fashion Retail',
+    objective: 'Increase online store traffic and repeat purchases',
+    targetAudience: 'Gen Z fashion enthusiasts aged 18-28',
+    channels: ['Instagram Ads', 'Influencer Partnerships', 'TikTok Organic', 'Paid TikTok'],
+    budget: { instagram: 18000, influencers: 22000, tiktok_organic: 0, tiktok_paid: 12000 },
+    metrics: { reach: 420000, ctr: 2.4, engagement: 12500, conversions: 94, sales: 267000 },
+    comments: ['Found through influencer rec', 'TikTok algorithm is wild', 'Instagram is where I see ads'],
+    socialPerformance: '8 micro-influencers with combined 500K followers, organic TikTok videos averaging 1.2M views',
+    mistake: 'Paying heavily for influencers ($22k) when organic TikTok content was 4x cheaper and generated viral engagement',
+    clues: ['Organic TikTok: 0 budget, 1.2M views per video, 15% click-through', 'Paid TikTok: 12k budget, 280K views, 6% click-through', 'Influencers: 22k budget, 500K reach but only 2% conversion'],
+    explanation: 'Urban Fashion had an organic TikTok success going viral naturally, but invested 22k in influencer partnerships instead of doubling down on what was already working. They were ignoring their best performing channel.',
+    improvements: ['Reduce influencer spend to 10k, focus on micro-influencers only', 'Allocate 20k to TikTok content production and paid amplification', 'Create TikTok content series, measure organic vs paid separately']
+  },
+  {
+    id: 5,
+    company: 'HealthFirst Insurance',
+    industry: 'Insurance',
+    objective: 'Increase policy inquiries from 55-75 age demographic',
+    targetAudience: 'Pre-retirees aged 55-75, college-educated',
+    channels: ['Facebook Ads', 'TV Commercials', 'Local Radio', 'Search Marketing'],
+    budget: { facebook: 15000, tv: 45000, radio: 8000, search: 12000 },
+    metrics: { reach: 520000, ctr: 0.9, engagement: 1850, conversions: 22, sales: 89000 },
+    comments: ['Saw the TV ad', 'Not sure who to trust', 'Found you through Google search'],
+    socialPerformance: 'Strong organic search presence, low social media engagement',
+    mistake: 'Spending $45k on TV commercials with massive reach but poor conversion, while search marketing (cheapest) had best conversion rate',
+    clues: ['TV: 45k budget, 320K reach, 0.6% conversion', 'Search: 12k budget, 45K reach, 3.2% conversion rate', 'Target audience increasingly researching insurance online before buying'],
+    explanation: 'HealthFirst followed traditional insurance marketing playbook (TV + radio) instead of following where their audience was buying. Search showed 5x better ROI but received 25% of budget. They were reaching people, not converting them.',
+    improvements: ['Cut TV budget to 15k, reallocate 30k to search and comparison sites', 'Create educational content about insurance options targeting their search behavior', 'Double down on local search and review sites like Trustpilot']
+  },
+  {
+    id: 6,
+    company: 'GameVault Studios',
+    industry: 'Game Development',
+    objective: 'Build pre-launch hype for indie game release',
+    targetAudience: 'Gamers aged 18-35, YouTube and Twitch viewers',
+    channels: ['YouTube Gaming', 'Twitch Sponsorships', 'Gaming Forums', 'Gaming Influencers'],
+    budget: { youtube: 12000, twitch: 18000, forums: 3000, influencers: 17000 },
+    metrics: { reach: 180000, ctr: 4.1, engagement: 9200, conversions: 156, sales: 580000 },
+    comments: ['Loved the Twitch stream', 'Influencer convinced me', 'Forum discussions were helpful'],
+    socialPerformance: 'Strong community presence on gaming forums, viral Twitch streams',
+    mistake: 'Paying Twitch streamers fixed rates ($18k) when YouTube gaming, with better organic reach, was severely under-resourced',
+    clues: ['Twitch paid sponsorships: 18k budget, 6% conversion', 'YouTube gaming: 12k budget, 12% conversion rate', 'Gaming forums: 3k budget, community-driven 18% conversion'],
+    explanation: 'GameVault paid premium rates for Twitch sponsorships that worked, but ignored the cheapest highest-converting channels (forums) and under-invested in YouTube where their audience was discovering games.',
+    improvements: ['Reduce Twitch sponsorships to 8k, pick top 3 streamers only', 'Increase YouTube budget to 20k and create exclusive content', 'Triple gaming forum budget to fuel organic word-of-mouth']
+  },
+  {
+    id: 7,
+    company: 'GreenPlant Nursery',
+    industry: 'E-commerce Plants',
+    objective: 'Expand customer base beyond local market',
+    targetAudience: 'Plant lovers aged 20-50, interested in gardening and home decor',
+    channels: ['Pinterest', 'Instagram', 'Email Marketing', 'Google Shopping'],
+    budget: { pinterest: 6000, instagram: 14000, email: 4000, shopping: 16000 },
+    metrics: { reach: 245000, ctr: 2.8, engagement: 8900, conversions: 118, sales: 345000 },
+    comments: ['Found through Pinterest idea', 'Great care guides on Instagram', 'Email reminders made me buy'],
+    socialPerformance: 'Massive Pinterest following with 200K followers, strong email list of 45K',
+    mistake: 'Spending $16k on Google Shopping ads when Pinterest, generating highest engagement and loyalty, only received $6k',
+    clues: ['Pinterest: 6k budget, 8.5% conversion, 45K email list grown', 'Google Shopping: 16k budget, 4.2% conversion, lower repeat purchase', 'Email marketing: 4k budget, 8% repeat purchase rate from existing list'],
+    explanation: 'GreenPlant had built an organic Pinterest community (200K followers) but didn\'t capitalize on it. Google Shopping reached impulse buyers. They should have leveraged their existing community asset more strategically.',
+    improvements: ['Increase Pinterest budget to 18k, create shoppable pins directly', 'Reduce Google Shopping to 10k, keep for new customer discovery only', 'Increase email budget to 8k, segment by plant type and care needs']
+  },
+  {
+    id: 8,
+    company: 'CodeAcademy Pro',
+    industry: 'Online Education',
+    objective: 'Increase course enrollments from working professionals',
+    targetAudience: 'Working professionals aged 25-50 seeking car
