@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cognitive Pattern Explorer</title>
+<style>
+/* ============================================
+   CSS VARIABLES & RESET
+   ============================================ */
+:root {
+  --primary: #8b7ee8;
+  --primary-light: #a89ef0;
+  --primary-dark: #6b5ebd;
+  --secondary: #4ecdc4;
+  --accent: #ff6b9d;
+  --success: #6bcf7f;
+  --bg-dark: #f5f3f7;
+  --bg-card: #ffffff;
+  --text-dark: #2c3e50;
+  --text-light: #7f8c8d;
+  --border-color: #e8e4f3;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-dark: #1a1a2e;
+    --bg-card: #0f3460;
+    --text-dark: #ecf0f1;
+    --text-light: #bdc3c7;
+    --border-color: #2c3e7a;
+    --primary: #a89ef0;
+    --secondary: #4ecdc4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, #f0f8ff 100%);
+  color: var(--text-dark);
+  min-height: 100vh;
+  scroll-behavior: smooth;
+}
+
+body {
+  padding: 16px;
+  background-attachment: fixed;
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+#app {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.screen {
+  display: none;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.screen.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding-top: 20px;
+}
+
+.header h1 {
+  font-size: clamp(28px, 6vw, 42px);
+  color: var(--primary);
+  margin-bottom: 8px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.header p {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
+.header-subtitle {
+  font-size: 12px;
+  color: var(--secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   PROGRESS & NAVIGATION
+   ============================================ */
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.5s ease;
+}
+
+.chapter-indicator {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   CARD & CONTAINER
+   ============================================ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--secondary);
+}
+
+.btn-success {
+  background: var(--success);
+}
+
+.btn-block {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   MODE SELECTOR
+   ============================================ */
+.mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.mode-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mode-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.mode-card.selected {
+  background: linear-gradient(135deg, rgba(139, 126, 232, 0.1), rgba(78, 205, 196, 0.1));
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(139, 126, 232, 0.1);
+}
+
+.mode-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.mode-title {
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.mode-description {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+/* ============================================
+   SCENARIO CARDS
+   ============================================ */
+.scenario-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  gap: 16px;
+}
+
+.scenario-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+  transform: translateX(4px);
+}
+
+.scenario-card.selected {
+  background: linear-gradient(135deg, rgba(139, 126, 232, 0.08), rgba(78, 205, 196, 0.08));
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(139, 126, 232, 0.2);
+}
+
+.scenario-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.scenario-content {
+  flex: 1;
+}
+
+.scenario-title {
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.scenario-description {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+.scenario-choice {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.scenario-choice:hover {
+  background: linear-gradient(135deg, rgba(139, 126, 232, 0.1), rgba(78, 205, 196, 0.1));
+  border-color: var(--primary);
+}
+
+.scenario-choice.selected {
+  background: linear-gradient(135deg, rgba(139, 126, 232, 0.2), rgba(78, 205, 196, 0.15));
+  border-color: var(--primary);
+}
+
+.choice-label {
+  font-size: 13px;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* ============================================
+   DRAGGABLE CARDS
+   ============================================ */
+.draggable-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.drag-pool {
+  background: var(--bg-dark);
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 200px;
+}
+
+.drag-pool-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.draggable-item {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  user-select: none;
+  touch-action: none;
+}
+
+.draggable-item:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.draggable-item:active {
+  cursor: grabbing;
+  opacity: 0.8;
+}
+
+.draggable-item.dragging {
+  opacity: 0.5;
+  transform: scale(1.05);
+}
+
+.dropzone {
+  background: linear-gradient(135deg, rgba(139, 126, 232, 0.05), rgba(78, 205, 196, 0.05));
+  border: 2px dashed var(--primary);
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 200px;
+  transition: all 0.2s ease;
+}
+
+.dropzone.drag-over {
+  background: linear-gradient(135deg, rgba(139, 126, 232, 0.15), rgba(78, 205, 196, 0.1));
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+}
+
+.dropzone-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.dropped-item {
+  background: linear-gradient(135deg, rgba(139, 126, 232, 0.15), rgba(78, 205, 196, 0.1));
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.remove-btn {
+  background: rgba(255, 107, 157, 0.2);
+  border: none;
+  color: var(--accent);
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: rgba(255, 107, 157, 0.4);
+}
+
+/* ============================================
+   TIMELINE
+   ============================================ */
+.timeline {
+  position: relative;
+  padding: 20px 0;
+}
+
+.timeline-item {
+  margin-bottom: 24px;
+  position: relative;
+  padding-left: 40px;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border: 3px solid var(--bg-dark);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+.timeline-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.timeline-content {
+  font-size: 13px;
+  color: var(--text-dark);
+  line-height: 1.6;
+  padding: 12px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+}
+
+/* ============================================
+   REFLECTION JOURNAL
+   ============================================ */
+.insight-card {
+  background: linear-gradient(135deg, rgba(139, 126, 232, 0.1), rgba(78, 205, 196, 0.08));
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.insight-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.insight-text {
+  font-size: 13px;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   PROGRESS CHART
+   ============================================ */
+.chart-item {
+  margin-bottom: 16px;
+}
+
+.chart-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chart-label-text {
+  color: var(--text-dark);
+}
+
+.chart-label-value {
+  color: var(--primary);
+}
+
+.chart-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.chart-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.6s ease;
+  border-radius: 4px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .draggable-container {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+  }
+
+  .scenario-card {
+    flex-direction: column;
+  }
+
+  .scenario-icon {
+    font-size: 28px;
+  }
+
+  .btn-group {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .header {
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- SCREEN: START -->
+  <div id="startScreen" class="screen active">
+    <div class="header">
+      <h1>🧠 Cognitive Pattern Explorer</h1>
+      <p>Discover how you think and process the world</p>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Welcome</div>
+      <div class="section-subtitle">
+        This is a self-reflection experience designed to help you explore your thinking patterns and decision-making style. There are no right or wrong answers—only insights about how you think.
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <p style="font-size: 13px; color: var(--text-light); margin-bottom: 16px; line-height: 1.6;">
+          <strong>How would you like to explore?</strong>
+        </p>
+
+        <div class="mode-grid">
+          <div class="mode-card" onclick="selectMode('calm')">
+            <div class="mode-icon">🌿</div>
+            <div class="mode-title">Calm Mode</div>
+            <div class="mode-description">Take your time, reflect deeply, embrace the journey</div>
+          </div>
+          <div class="mode-card" onclick="selectMode('focus')">
+            <div class="mode-icon">⚡</div>
+            <div class="mode-title">Focus Mode</div>
+            <div class="mode-description">Quick reflections, direct questions, efficient insights</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-block" onclick="startExploration()" id="startBtn" disabled>
+        Start Exploration
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="section-title">What to Expect</div>
+      <div style="font-size: 13px; color: var(--text-light); line-height: 1.8;">
+        <p style="margin-bottom: 12px;">✓ <strong>Chapter 1:</strong> Discover your thinking style through reflective scenarios</p>
+        <p style="margin-bottom: 12px;">✓ <strong>Chapter 2:</strong> Prioritize what matters to you with interactive cards</p>
+        <p style="margin-bottom: 12px;">✓ <strong>Chapter 3:</strong> Map your thinking patterns through time</p>
+        <p>✓ <strong>Reflection:</strong> Receive personalized insights about your cognitive patterns</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: CHAPTER 1 -->
+  <div id="chapter1Screen" class="screen">
+    <div class="header">
+      <h1>🧠 Cognitive Pattern Explorer</h1>
+      <div class="chapter-indicator">Chapter 1: Discover Your Thinking Style</div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 25%"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">How Do You Approach Problems?</div>
+      <div class="section-subtitle">
+        Consider these scenarios. There are no right answers—choose the approach that resonates most with how you naturally think.
+      </div>
+
+      <div id="chapter1Content"></div>
+
+      <button class="btn btn-block" onclick="goToChapter2()">Continue to Chapter 2</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: CHAPTER 2 -->
+  <div id="chapter2Screen" class="screen">
+    <div class="header">
+      <h1>🧠 Cognitive Pattern Explorer</h1>
+      <div class="chapter-indicator">Chapter 2: Choose Your Priorities</div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 50%"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">What Matters Most to You?</div>
+      <div class="section-subtitle">
+        Drag the priorities that resonate with you into your personal priority list. You can select up to 5.
+      </div>
+
+      <div class="draggable-container">
+        <div>
+          <div class="drag-pool">
+            <div class="drag-pool-title">📌 Available Priorities</div>
+            <div id="priorityPool"></div>
+          </div>
+        </div>
+        <div>
+          <div class="dropzone" id="priorityDropzone">
+            <div class="dropzone-title">✨ Your Priorities</div>
+            <div id="selectedPriorities"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-block" onclick="goToChapter3()">Continue to Chapter 3</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: CHAPTER 3 -->
+  <div id="chapter3Screen" class="screen">
+    <div class="header">
+      <h1>🧠 Cognitive Pattern Explorer</h1>
+      <div class="chapter-indicator">Chapter 3: Map Your Thinking</div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 75%"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">How Do You Experience Your Thinking?</div>
+      <div class="section-subtitle">
+        Arrange these thinking experiences in the order they typically happen for you. Drag them to create your personal thinking timeline.
+      </div>
+
+      <div class="draggable-container">
+        <div>
+          <div class="drag-pool">
+            <div class="drag-pool-title">🕐 Available Experiences</div>
+            <div id="timelinePool"></div>
+          </div>
+        </div>
+        <div>
+          <div class="timeline" id="timelineDropzone">
+            <div style="font-size: 12px; color: var(--text-light); text-align: center; padding: 40px 20px;">
+              Drag experiences here to build your timeline
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-block" onclick="goToReflection()">Complete Exploration</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: REFLECTION -->
+  <div id="reflectionScreen" class="screen">
+    <div class="header">
+      <h1>🧠 Cognitive Pattern Explorer</h1>
+      <div class="chapter-indicator">Your Reflection Journal</div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 100%"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Your Thinking Profile</div>
+      <div id="thinkingProfile"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Cognitive Patterns</div>
+      <div id="cognitivePatterns"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Thinking Style Breakdown</div>
+      <div id="styleBreakdown"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Your Priorities</div>
+      <div id="prioritiesSummary"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Reflection Notes</div>
+
