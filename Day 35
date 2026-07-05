@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🧩 Prompt Puzzle - Master AI Prompting Through Play</title>
+<style>
+:root {
+  --primary: #ff6b35;
+  --primary-light: #ff8a5b;
+  --primary-dark: #e55a28;
+  --secondary: #004e89;
+  --accent: #1ac8ed;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --bg-dark: #0a0e27;
+  --bg-darker: #050a1a;
+  --text-light: #e0e6ed;
+  --text-muted: #a0aac0;
+  --border-color: rgba(255, 107, 53, 0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+  color: var(--text-light);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body {
+  padding: 16px;
+}
+
+#app {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+  margin-top: 20px;
+}
+
+.header h1 {
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+}
+
+.btn-large {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-light);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.challenge-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.panel {
+  background: rgba(255, 107, 53, 0.1);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.block {
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255, 107, 53, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.block:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+  transform: translateY(-2px);
+}
+
+.block.dragging {
+  opacity: 0.5;
+}
+
+.block.correct {
+  background: rgba(46, 204, 113, 0.2);
+  border-color: var(--success);
+}
+
+.block.incorrect {
+  background: rgba(231, 76, 60, 0.2);
+  border-color: var(--danger);
+}
+
+.block.placed {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.3), rgba(26, 200, 237, 0.2));
+  border-color: var(--success);
+}
+
+.dropzone {
+  background: rgba(255, 107, 53, 0.08);
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 200px;
+  transition: all 0.3s ease;
+}
+
+.dropzone.active {
+  background: rgba(255, 107, 53, 0.15);
+  border-color: var(--primary);
+  box-shadow: inset 0 0 20px rgba(255, 107, 53, 0.1);
+}
+
+.dropzone-item {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(26, 200, 237, 0.15));
+  border: 1px solid var(--success);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.remove-btn {
+  background: rgba(231, 76, 60, 0.3);
+  border: none;
+  color: var(--danger);
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background: rgba(255, 107, 53, 0.1);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.output-box {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.comparison-item {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.comparison-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.comparison-text {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.6;
+  font-family: 'Courier New', monospace;
+}
+
+.report-card {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(26, 200, 237, 0.08));
+  border-left: 4px solid var(--success);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.report-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--success);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.report-content {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+.dna-bar {
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  height: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.dna-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.5s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scoreFloat {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+
+.score-notification {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  background: linear-gradient(135deg, var(--success), var(--accent));
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  animation: scoreFloat 2s ease-out forwards;
+  pointer-events: none;
+  z-index: 100;
+}
+
+@media (max-width: 1024px) {
+  .challenge-container {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.5s ease;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(255, 107, 53, 0.2);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ============================================
+// SCENARIOS DATABASE - ADVANCED DATA SCIENCE
+// ============================================
+const scenarios = [
+  {
+    id: 1,
+    type: 'Build the Prompt',
+    title: 'SQL Performance Analysis with Few-Shot Examples',
+    desiredOutput: 'A step-by-step SQL query optimization plan with execution time analysis and indexing recommendations',
+    correctBlocks: [
+      'You are a database performance engineer',
+      'I will give you 2 example SQL queries with their performance metrics',
+      'Analyze the query provided for N+1 problems, missing indexes, and join inefficiency',
+      'Format your response as: [Issue Found] → [Root Cause] → [Optimization] → [Expected Improvement %]',
+      'Here is Example 1: SELECT * FROM orders WHERE customer_id = ? (500ms) vs SELECT id, customer_id FROM orders WHERE customer_id = ? (120ms)'
+    ],
+    distractorBlocks: [
+      'Make the query faster',
+      'Find all problems in this query',
+      'Use machine learning to predict query performance',
+      'Tell me about your experience with SQL'
+    ],
+    weakPrompt: 'Optimize this SQL query.',
+    optimizedPrompt: 'You are a database performance engineer specializing in query optimization. I will provide a SQL query and you analyze it systematically: [ISSUE] → [ROOT CAUSE] → [OPTIMIZATION] → [EXPECTED TIME REDUCTION]. Here are 2 examples of before/after performance metrics to guide your analysis style.',
+    overEngineeredPrompt: 'Using advanced heuristics, meta-cognitive frameworks, and probabilistic reasoning models, conduct a comprehensive, holistic, multidimensional analysis of the following SQL query incorporating elements from complexity theory, systems thinking, and computational linguistics to produce a taxonomically organized, semantically rich, and contextually nuanced optimization strategy.',
+    weakOutput: 'Your query is slow. You should add indexes.',
+    optimizedOutput: '[ISSUE FOUND] N+1 query pattern detected - querying individual customers for each order. [ROOT CAUSE] Missing JOIN, application layer iteration. [OPTIMIZATION] SELECT o.id, c.name FROM orders o JOIN customers c ON o.customer_id=c.id. [EXPECTED IMPROVEMENT] 94% time reduction',
+    principle: 'Advanced prompts use few-shot learning (examples) + explicit output structure + role definition. Avoid generic requests; provide concrete examples of desired output format and quality.'
+  },
+  {
+    id: 2,
+    type: 'Clean the Prompt',
+    title: 'Python Data Cleaning with Chain-of-Thought',
+    desiredOutput: 'Python code with explicit reasoning steps showing why each cleaning operation is necessary',
+    correctBlocks: [
+      'Think step-by-step about what makes this dataset problematic',
+      'For each issue identified, explain why it matters for analysis',
+      'Show Python code with comments explaining the cleaning logic',
+      'Include before/after metrics (missing %, dtype issues, outliers detected)'
+    ],
+    distractorBlocks: [
+      'Remove bad data',
+      'Clean the data and make it good',
+      'Use pandas to fix everything',
+      'What data cleaning libraries exist?'
+    ],
+    weakPrompt: 'Clean this messy dataset with missing values and duplicates.',
+    optimizedPrompt: 'Use chain-of-thought reasoning: (1) Identify what makes this dataset problematic, (2) for each issue, explain why it breaks analysis, (3) write Python code showing the fix, (4) show before/after metrics. Format: [ISSUE] why it matters → [SOLUTION] code → [IMPACT] metric change.',
+    overEngineeredPrompt: 'Leveraging paradigmatic shifts in computational data governance and implementing metacognitive cleaning architectures, synthesize a multifaceted approach to dataset hygiene optimization that transcends traditional paradigms.',
+    weakOutput: 'import pandas as pd; df.dropna(); df.drop_duplicates()',
+    optimizedOutput: '[ISSUE] 34% missing values in age column prevents statistical analysis. [SOLUTION] Use median imputation (age.fillna(age.median())) rather than deletion to preserve 2,156 records. [IMPACT] 34% → 0% missing, 89% → 100% usable records.',
+    principle: 'Chain-of-thought prompts ask the AI to explain reasoning step-by-step before providing solutions. This dramatically improves code quality and reveals assumptions.'
+  },
+  {
+    id: 3,
+    type: 'Choose the Best Prompt',
+    title: 'Statistical Test Selection with System Instructions',
+    desiredOutput: 'Clear decision tree showing which statistical test to use and why, with Python implementation',
+    correctPrompts: [
+      { label: 'Expert Approach', text: 'You are a statistician. Given data characteristics (sample size, normality, group count), follow this decision tree: [Normal + 2 groups → t-test] [Abnormal → Mann-Whitney] [3+ groups → ANOVA]. For each test, show assumptions, validation steps, and p-value interpretation.' },
+      { label: 'Principled Approach', text: 'Before suggesting a test, ask: 1) Is data normally distributed? (Shapiro-Wilk test) 2) How many groups? 3) Is variance equal? Document your answers, then select test. Show why rejected alternatives were wrong.' }
+    ],
+    incorrectPrompts: [
+      { label: 'Vague', text: 'What statistical test should I use?' },
+      { label: 'Over-specific', text: 'Use a Bayesian hierarchical mixed-effects model with regularized horseshoe priors and variational inference.' }
+    ],
+    weakOutput: 'Use a t-test. It\'s common.',
+    optimizedOutput: '[TEST SELECTED] Welch\'s t-test (unequal variance). [REASONING] Data is normally distributed (Shapiro-Wilk p=0.87), 2 independent groups, variance unequal (Levene p=0.03). [ASSUMPTIONS VALIDATED] ✓ Independence ✓ Normality ✓ Continuous data. [CODE] scipy.stats.ttest_ind(group1, group2, equal_var=False). [INTERPRETATION] If p<0.05, reject null hypothesis.',
+    principle: 'System prompts define role + constraints + decision framework upfront. They eliminate ambiguity and guide consistent, expert-quality outputs. Test the prompt against different inputs to verify robustness.'
+  },
+  {
+    id: 4,
+    type: 'Build the Prompt',
+    title: 'Time Series Forecasting with Example-Driven Instructions',
+    desiredOutput: 'Time series forecast with confidence intervals and explicit reasoning for method choice',
+    correctBlocks: [
+      'You are a forecasting specialist proficient in ARIMA, exponential smoothing, and Prophet',
+      'I will give you a dataset with its characteristics (trend, seasonality, stationarity)',
+      'Analyze: Is there trend? Is there seasonality? Is the series stationary?',
+      'Based on your analysis, recommend the best method with justification',
+      'Provide Python code and show 95% confidence intervals on your forecast',
+      'Example: High seasonality + trend → Prophet. No seasonality + stationary → ARIMA(1,0,1)'
+    ],
+    distractorBlocks: [
+      'Predict the future',
+      'Use deep learning for forecasting',
+      'Show me all possible forecasting methods',
+      'What is machine learning?'
+    ],
+    weakPrompt: 'Forecast this time series data for the next 12 months.',
+    optimizedPrompt: 'Analyze the time series systematically: (1) Test stationarity (ADF test), (2) identify trend + seasonality patterns, (3) select method based on characteristics: stationary no seasonality→ARIMA, strong seasonality→Prophet, trend changes→exponential smoothing. (4) Provide code with 95% CI. Example: If ADF p>0.05 (non-stationary) + quarterly seasonality → Prophet is better than ARIMA.',
+    overEngineeredPrompt: 'Utilizing advanced temporal dynamics, wavelet decomposition, and multi-dimensional manifold learning, construct a sophisticated ensemble meta-learner incorporating neural ordinary differential equations.',
+    weakOutput: 'The next 12 months will increase by 15% average.',
+    optimizedOutput: '[METHOD CHOSEN] SARIMA(1,1,1)(0,1,1,12) - Series has trend and 12-month seasonality. [STATIONARITY] ADF test p=0.02 (non-stationary after 1 difference). [FORECAST] Month 1: 487 [450-524 95% CI], Month 12: 512 [468-556 95% CI]. [CONFIDENCE] RMSE on validation set: 23 units (good fit).',
+    principle: 'Advanced few-shot prompts include concrete examples of decision logic. Show the if-then reasoning that transforms data characteristics into method selection.'
+  },
+  {
+    id: 5,
+    type: 'Clean the Prompt',
+    title: 'Feature Engineering Reasoning with Explicit Steps',
+    desiredOutput: 'Feature engineering code with clear documentation of why each feature matters for the model',
+    correctBlocks: [
+      'Before creating features, explain what problem each feature solves',
+      'Show domain reasoning: Why would this feature predict the target?',
+      'Create features incrementally with validation metrics at each step',
+      'Document feature importance scores after model training'
+    ],
+    distractorBlocks: [
+      'Create more features',
+      'Use feature engineering to improve accuracy',
+      'What are the best features?',
+      'Apply all possible transformations'
+    ],
+    weakPrompt: 'Engineer features for my machine learning model.',
+    optimizedPrompt: 'For each feature created: (1) State the domain hypothesis - why should this predict the target? (2) Show the code transformation, (3) Validate with feature importance or correlation. Format: [HYPOTHESIS] why this feature matters → [CODE] transformation → [VALIDATION] importance score or correlation. Example: [HYPOTHESIS] Older customers churn less → [CODE] age_squared = df.age**2 → [VALIDATION] feature_importance=0.18',
+    overEngineeredPrompt: 'Implement a comprehensive, ontologically-grounded feature extraction paradigm utilizing recursive dimensional abstraction and abstract polynomial basis expansion.',
+    weakOutput: 'df["new_feature"] = df["feature1"] * df["feature2"]',
+    optimizedOutput: '[HYPOTHESIS] Interaction between customer tenure and purchase frequency predicts lifetime value. [CODE] df["tenure_x_freq"] = df["months_customer"] * df["purchases_per_month"]. [VALIDATION] Feature importance=0.34 (top 5), Correlation with target=0.52 (strong). [BUSINESS IMPACT] This feature captures loyal high-value customers.',
+    principle: 'Chain-of-thought with validation. Each feature should have documented reasoning, code, and metrics. This prevents random feature creation and improves model interpretability.'
+  },
+  {
+    id: 6,
+    type: 'Choose the Best Prompt',
+    title: 'Anomaly Detection Method Selection',
+    desiredOutput: 'Decision framework for selecting anomaly detection approach with code examples',
+    correctPrompts: [
+      { label: 'Principled Selection', text: 'You are an anomaly detection specialist. Given data characteristics, follow this framework: [Univariate + known normal range → Z-score] [Multivariate + no labels → Isolation Forest] [Time series + seasonal → Prophet\'s trend+seasonal residuals] [High dimensional → Autoencoder]. For each, show assumptions and code.' },
+      { label: 'Reasoning-First', text: 'Before selecting a method, answer: 1) How many dimensions? 2) Do we have labeled anomalies? 3) Is it time-series? 4) What is the anomaly type (point, collective, contextual)? Show your reasoning, then select method.' }
+    ],
+    incorrectPrompts: [
+      { label: 'Vague', text: 'Find anomalies in my data.' },
+      { label: 'Over-complex', text: 'Apply sophisticated deep generative adversarial variational autoencoders with attention mechanisms.' }
+    ],
+    weakOutput: 'Use Isolation Forest. It\'s popular.',
+    optimizedOutput: '[ANALYSIS] Data is 12-dimensional, no labeled anomalies, multiple independent sensor streams (not time-series correlated). [METHOD] Isolation Forest - detects multivariate outliers without labeled training data. [THRESHOLD] 95th percentile anomaly score. [CODE] from sklearn.ensemble import IsolationForest; iso=IsolationForest(contamination=0.05); preds=iso.fit_predict(X). [VALIDATION] Manual review of top 20 detected anomalies shows 18/20 are true issues.',
+    principle: 'System prompts work best when they include decision criteria BEFORE method selection. Test your prompt on varied data (univariate, mul
