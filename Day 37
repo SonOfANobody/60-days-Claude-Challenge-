@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Task Compass - Learn How Work Flows</title>
+<style>
+/* ============================================
+   VARIABLES & RESET
+   ============================================ */
+:root {
+  --primary: #6366f1;
+  --primary-light: #818cf8;
+  --primary-dark: #4f46e5;
+  --secondary: #ec4899;
+  --accent: #06b6d4;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  
+  --frontend: #3b82f6;
+  --backend: #8b5cf6;
+  --qa: #ec4899;
+  --product: #f59e0b;
+  --design: #06b6d4;
+  --support: #10b981;
+  --manager: #f97316;
+  --sales: #06b6d4;
+  
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --bg-hover: #334155;
+  --text-light: #f1f5f9;
+  --text-muted: #cbd5e1;
+  --border: #334155;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f35 100%);
+  color: var(--text-light);
+  min-height: 100vh;
+}
+
+body {
+  padding: 16px;
+  background-attachment: fixed;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.screen {
+  display: none;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.screen.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-top: 20px;
+}
+
+.header h1 {
+  font-size: clamp(28px, 6vw, 48px);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.header p {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.stage-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.stage-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.stage-dot.active {
+  background: var(--accent);
+}
+
+/* ============================================
+   PROGRESS
+   ============================================ */
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.6s ease;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.6));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+}
+
+.task-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.8));
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.task-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.task-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.task-description {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* ============================================
+   ROLE CARDS
+   ============================================ */
+.role-pool {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.role-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.1));
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  cursor: grab;
+  transition: all 0.2s ease;
+  user-select: none;
+  draggable: true;
+}
+
+.role-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+}
+
+.role-card.dragging {
+  opacity: 0.4;
+}
+
+.role-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.role-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-light);
+  line-height: 1.3;
+}
+
+.role-card[data-role="frontend"] {
+  border-color: var(--frontend);
+}
+
+.role-card[data-role="backend"] {
+  border-color: var(--backend);
+}
+
+.role-card[data-role="qa"] {
+  border-color: var(--qa);
+}
+
+.role-card[data-role="product"] {
+  border-color: var(--product);
+}
+
+.role-card[data-role="design"] {
+  border-color: var(--design);
+}
+
+.role-card[data-role="support"] {
+  border-color: var(--support);
+}
+
+.role-card[data-role="manager"] {
+  border-color: var(--manager);
+}
+
+.role-card[data-role="sales"] {
+  border-color: var(--sales);
+}
+
+/* ============================================
+   DROPZONE
+   ============================================ */
+.dropzone-container {
+  margin-bottom: 24px;
+}
+
+.dropzone-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.dropzone {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(6, 182, 212, 0.06));
+  border: 2px dashed var(--primary);
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 80px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropzone.drag-over {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.15));
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+.dropzone-placeholder {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.dropped-item {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  animation: popIn 0.3s ease;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.remove-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   WORKFLOW
+   ============================================ */
+.workflow-container {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.4));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.workflow-step {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.workflow-step:last-child {
+  margin-bottom: 0;
+}
+
+.workflow-role {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 12px;
+  color: white;
+  min-width: 120px;
+  text-align: center;
+}
+
+.workflow-arrow {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), transparent);
+  margin: 0 12px;
+  position: relative;
+}
+
+.workflow-arrow::after {
+  content: '→';
+  position: absolute;
+  right: -8px;
+  top: -8px;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-block {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--secondary), #ec4899);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success), #34d399);
+}
+
+/* ============================================
+   RESULTS
+   ============================================ */
+.result-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+  border-left: 4px solid var(--success);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.result-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--success);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.result-content {
+  font-size: 14px;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.insight-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.insight-list li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.insight-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--success);
+  font-weight: bold;
+}
+
+/* ============================================
+   RADAR CHART
+   ============================================ */
+.chart-container {
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.chart-bars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.chart-item {
+  text-align: center;
+}
+
+.chart-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.chart-bar {
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.1));
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.chart-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: linear-gradient(180deg, var(--primary), var(--accent));
+  transition: height 0.6s ease;
+  border-radius: 8px 8px 0 0;
+}
+
+.chart-value {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-weight: 700;
+  color: white;
+  font-size: 18px;
+}
+
+/* ============================================
+   CELEBRATION
+   ============================================ */
+.celebration {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.celebration-emoji {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.celebration-text {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.celebration-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .card {
+    padding: 20px;
+  }
+
+  .role-pool {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+
+  .chart-bars {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-container {
+    padding: 16px;
+  }
+
+  .workflow-step {
+    flex-wrap: wrap;
+  }
+
+  .workflow-arrow {
+    width: 100%;
+    height: 2px;
+    margin: 8px 0;
+    flex-basis: 100%;
+  }
+
+  .workflow-arrow::after {
+    top: -10px;
+    right: 50%;
+    transform: translateX(50%);
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 28px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .role-pool {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .btn-block {
+    padding: 14px;
+    font-size: 14px;
+  }
+}
+
+/* ============================================
+   ANIMATION
+   ============================================ */
+@keyframes flowAnimation {
+  0%, 100% { opacity: 0.5; transform: translateX(-4px); }
+  50% { opacity: 1; transform: translateX(4px); }
+}
+
+.animate-flow {
+  animation: flowAnimation 1s ease-in-out infinite;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- START SCREEN -->
+  <div id="startScreen" class="screen active">
+    <div class="header">
+      <h1>📍 Task Compass</h1>
+      <p>Learn how work flows through real organizations</p>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom: 16px; font-size: 20px;">Welcome to Your Tech Company Journey</h2>
+      <p style="font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 20px;">
+        In this exploration, you'll learn how real work gets done in tech companies. You'll discover:
+      </p>
+      <ul class="insight-list" style="margin-bottom: 20px;">
+        <li>Who truly owns each problem</li>
+        <li>How tasks flow through organizations</li>
+        <li>When collaboration is essential</li>
+        <li>How real teams solve complex problems</li>
+      </ul>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+        There are no right or wrong answers—only different ways organizations solve problems. Your goal is to think like someone who understands how work actually flows.
+      </p>
+      <button class="btn btn-block" onclick="startGame()">Begin Exploration</button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 12px; font-size: 16px;">What You'll Do</h3>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.8;">
+        <strong>Stage 1 (Ownership):</strong> Identify who owns each task<br/>
+        <strong>Stage 2 (Routing):</strong> Build the workflow<br/>
+        <strong>Stage 3 (Collaboration):</strong> Solve complex problems with teams
+      </p>
+    </div>
+  </div>
+
+  <!-- STAGE 1 -->
+  <div id="stage1Screen" class="screen">
+    <div class="header">
+      <h1>📍 Task Compass</h1>
+    </div>
+
+    <div class="stage-indicator">
+      <span class="stage-dot active"></span>
+      <span>Stage 1: Ownership</span>
+      <span class="stage-dot"></span>
+      <span>Stage 2: Routing</span>
+      <span class="stage-dot"></span>
+      <span>Stage 3: Collaboration</span>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 33%"></div>
+    </div>
+
+    <div class="card">
+      <div id="stage1Content"></div>
+    </div>
+  </div>
+
+  <!-- STAGE 2 -->
+  <div id="stage2Screen" class="screen">
+    <div class="header">
+      <h1>📍 Task Compass</h1>
+    </div>
+
+    <div class="stage-indicator">
+      <span class="stage-dot"></span>
+      <span>Stage 1: Ownership</span>
+      <span class="stage-dot active"></span>
+      <span>Stage 2: Routing</span>
+      <span class="stage-dot"></span>
+      <span>Stage 3: Collaboration</span>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 66%"></div>
+    </div>
+
+    <div class="card">
+      <div id="stage2Content"></div>
+    </div>
+  </div>
+
+  <!-- STAGE 3 -->
+  <div id="stage3Screen" class="screen">
+    <div class="header">
+      <h1>📍 Task Compass</h1>
+    </div>
+
+    <div class="stage-indicator">
+      <span class="stage-dot"></span>
+      <span>Stage 1: Ownership</span>
+      <span class="stage-dot"></span>
+      <span>Stage 2: Routing</span>
+      <span class="stage-dot active"></span>
+      <span>Stage 3: Collaboration</span>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 99%"></div>
+    </div>
+
+    <div class="card">
+      <div id="stage3Content"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="resultsScreen" class="screen">
+    <div class="header">
+      <h1>📍 Task Compass</h1>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 100%"></div>
+    </div>
+
+    <div class="celebration">
+      <div class="celebration-emoji">🎯</div>
+      <div class="celebration-text">Journey Complete</div>
+      <div class="celebration-subtitle">You've explored how work flows through organizations</div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom: 20px; font-size: 20px;">Your Understanding Profile</h2>
+      <div class="chart-container">
+        <div class="chart-title">Competency Radar</div>
+        <div class="chart-bars">
+          <div class="chart-item">
+            <div class="chart-label">Ownership</div>
+            <div class="chart-bar">
+              <div class="chart-fill" id="ownershipBar" style="height: 0%"></div>
+              <div class="chart-value" id="ownershipValue">0%</div>
+            </div>
+          </div>
+          <div class="chart-item">
+            <div class="chart-label">Delegation</div>
+            <div class="chart-bar">
+              <div class="chart-fill" id="delegationBar" style="height: 0%"></div>
+              <div class="chart-value" id="delegationValue">0%</div>
+            </div>
+          </div>
+          <div class="chart-item">
+            <div class="chart-label">Collaboration</div>
+            <div class="chart-bar">
+              <div class="chart-fill" id="collaborationBar" style="height: 0%"></div>
+              <div class="chart-value" id="collaborationValue">0%</div>
+            </div>
+          </div>
+          <div class="chart-item">
+            <div class="chart-label">Workflow Thinking</div>
+            <div class="chart-bar">
+              <div class="chart-fill" id="workflowBar" style="height: 0%"></div>
+              <div class="chart-value" id="workflowValue">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom: 16px; font-size: 20px;">Your Reflections</h2>
+      <div id="reflectionContent"></div>
+    </div>
+
+    <div class="card">
+      <button class="btn btn-block" onclick="resetGame()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// DATA: STAGE 1 TASKS
+// ============================================
+const stage1Tasks = [
+  {
+    icon: '📱',
+    title: 'Mobile Payment Failure',
+    description: 'Customers report that payments fail only on iPhones using Safari.',
+    owner: 'frontend',
+    ownerName: 'Frontend Developer',
+    reasoning: 'This is a browser-specific issue likely involving JavaScript, CSS, or layout. The Frontend Developer diagnoses browser compatibility problems. However, if it\'s a payment API issue, Backend may assist.',
+    assistants: ['Backend Developer', 'QA Engineer']
+  },
+  {
+    icon: '🐌',
+    title: 'Dashboard Slowness',
+    description: 'The analytics dashboard is taking 8 seconds to load.',
+    owner: 'backend',
+    ownerName: 'Backend Developer',
+    reasoning: 'Performance problems at this scale are typically backend—database queries, API optimization, caching. The Backend Developer owns the investigation. Frontend may assist if it\'s rendering performance.',
+    assistants: ['Frontend Developer', 'QA Engineer']
+  },
+  {
+    icon: '❌',
+    title: 'Bug in New Feature',
+    description: 'Users can\'t upload images to their profiles in the new release.',
+    owner: 'qa',
+    ownerName: 'QA Engineer',
+    reasoning: 'A feature-breaking bug needs verification and reproduction first. QA owns the investigation, validates the scope, and documents. They escalate to Frontend or Backend once severity is understood.',
+    assistants: ['Frontend Developer', 'Backend Developer']
+  },
+  {
+    icon: '📊',
+    title: 'Confusing Metrics Dashboard',
+    description: 'Users consistently clic
