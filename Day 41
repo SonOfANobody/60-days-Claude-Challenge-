@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Neural Network Fundamentals - Interactive Learning Studio</title>
+<style>
+/* ============================================
+   VARIABLES & RESET
+   ============================================ */
+:root {
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e40af;
+  --secondary: #7c3aed;
+  --accent: #06b6d4;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  
+  --bg-dark: #0f172a;
+  --bg-darker: #0a0e27;
+  --bg-card: #1e293b;
+  --bg-input: #1a2641;
+  --bg-hover: #334155;
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  --border: rgba(255,255,255,0.1);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  background-attachment: fixed;
+}
+
+body {
+  padding: 0;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.header {
+  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.05));
+  border-bottom: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left h1 {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.header-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.header-right {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.progress-indicator {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-bar-small {
+  width: 120px;
+  height: 4px;
+  background: var(--bg-input);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill-small {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.3s ease;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+.container {
+  flex: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 40px 20px;
+}
+
+.section {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   INTRO SECTION
+   ============================================ */
+.intro-hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.intro-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.intro-title {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.learning-objectives {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.objectives-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.objective-item {
+  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.05));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.objective-item strong {
+  color: var(--primary);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.info-card {
+  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.05));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+}
+
+.info-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.start-button-container {
+  text-align: center;
+  margin-top: 32px;
+}
+
+/* ============================================
+   MODULE CONTENT
+   ============================================ */
+.module-header {
+  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.05));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.module-number {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.module-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.module-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.content-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.content-heading {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--primary);
+}
+
+.content-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.example-box {
+  background: var(--bg-input);
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+  padding: 16px;
+  margin: 16px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  overflow-x: auto;
+}
+
+.analogy-box {
+  background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05));
+  border-left: 4px solid var(--success);
+  border-radius: 4px;
+  padding: 16px;
+  margin: 16px 0;
+  font-size: 13px;
+}
+
+.misconception-box {
+  background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(239,68,68,0.05));
+  border-left: 4px solid var(--danger);
+  border-radius: 4px;
+  padding: 16px;
+  margin: 16px 0;
+  font-size: 13px;
+}
+
+.key-takeaway {
+  background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(251,191,36,0.05));
+  border-left: 4px solid var(--warning);
+  border-radius: 4px;
+  padding: 16px;
+  margin: 16px 0;
+  font-size: 13px;
+}
+
+.diagram-container {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 16px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 13px;
+}
+
+.comparison-table th {
+  background: var(--bg-input);
+  color: var(--primary);
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+
+.comparison-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.comparison-table tr:hover {
+  background: rgba(37,99,235,0.05);
+}
+
+.exercise-box {
+  background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(124,58,237,0.05));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 16px 0;
+}
+
+.exercise-title {
+  font-weight: 700;
+  color: var(--secondary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exercise-content {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.exercise-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  color: var(--text-primary);
+  margin: 12px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  width: 100%;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.exercise-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 12px rgba(37,99,235,0.2);
+}
+
+/* ============================================
+   QUIZ SECTION
+   ============================================ */
+.quiz-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.quiz-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.quiz-score {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.quiz-question {
+  margin-bottom: 24px;
+}
+
+.question-number {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+}
+
+.question-text {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quiz-option {
+  background: var(--bg-input);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.quiz-option:hover {
+  border-color: var(--primary);
+}
+
+.quiz-option.selected {
+  border-color: var(--primary);
+  background: rgba(37,99,235,0.1);
+}
+
+.quiz-option.correct {
+  border-color: var(--success);
+  background: rgba(16,185,129,0.1);
+}
+
+.quiz-option.incorrect {
+  border-color: var(--danger);
+  background: rgba(239,68,68,0.1);
+}
+
+.quiz-option.disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.option-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.option-radio {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quiz-option.selected .option-radio {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.option-radio::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  display: none;
+}
+
+.quiz-option.selected .option-radio::after {
+  display: block;
+}
+
+.quiz-feedback {
+  background: rgba(16,185,129,0.1);
+  border: 1px solid var(--success);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--success);
+  display: none;
+}
+
+.quiz-feedback.show {
+  display: block;
+}
+
+.quiz-feedback.error {
+  background: rgba(239,68,68,0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.quiz-summary {
+  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.05));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 24px;
+  text-align: center;
+}
+
+.summary-score {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.summary-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   PROGRESS TRACKING
+   ============================================ */
+.progress-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.progress-item:last-child {
+  margin-bottom: 0;
+}
+
+.progress-status {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.progress-status.completed {
+  background: var(--success);
+  color: white;
+}
+
+.progress-status.current {
+  background: var(--primary);
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.progress-status.locked {
+  background: var(--bg-input);
+  color: var(--text-muted);
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.progress-label {
+  flex: 1;
+}
+
+.progress-label-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.progress-label-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   RESOURCES SECTION
+   ============================================ */
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.resource-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.resource-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.resource-type {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+}
+
+.resource-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.resource-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 12px;
+  }
+
+  .intro-title {
+    font-size: 28px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .objectives-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-table {
+    font-size: 12px;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .intro-icon {
+    font-size: 48px;
+  }
+
+  .intro-title {
+    font-size: 22px;
+  }
+
+  .module-title {
+    font-size: 22px;
+  }
+
+  .content-heading {
+    font-size: 16px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quiz-options {
+    gap: 6px;
+  }
+
+  .quiz-option {
+    padding: 10px 12px;
+  }
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+.hidden {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-24 {
+  margin-top: 24px;
+}
+
+.mb-24 {
+  margin-bottom: 24px;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>🧠 Neural Network Fundamentals</h1>
+      <div class="header-subtitle">Interactive Learning Studio</div>
+    </div>
+    <div class="header-right">
+      <div class="progress-indicator">
+        <span class="progress-text">Progress</span>
+        <div class="progress-bar-small">
+          <div class="progress-fill-small" id="headerProgress" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+    <!-- INTRO SECTION -->
+    <div id="introSection" class="section active">
+      <div class="intro-hero">
+        <div class="intro-icon">🧠</div>
+        <h2 class="intro-title">Master Neural Network Fundamentals</h2>
+        <p class="intro-subtitle">
+          From basic perceptrons to backpropagation: Build a complete understanding of how artificial neural networks learn and process information.
+        </p>
+      </div>
+
+      <div class="learning-objectives">
+        <div class="section-title">📚 Learning Objectives</div>
+        <div class="objectives-grid">
+          <div class="objective-item">
+            <strong>• Understand Perceptrons</strong><br/>
+            Learn the foundation: how single neurons make decisions
+          </div>
+          <div class="objective-item">
+            <strong>• Master Activation Functions</strong><br/>
+            Discover why networks need nonlinearity
+          </div>
+          <div class="objective-item">
+            <strong>• Build Forward Propagation</strong><br/>
+            See how data flows through networks
+          </div>
+          <div class="objective-item">
+            <strong>• Grasp Backpropagation</strong><br/>
+            Understand how networks learn from mistakes
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-label">⏱️ Duration</div>
+          <div class="info-value">2-3 hrs</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">📊 Modules</div>
+          <div class="info-value">4</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">🎯 Difficulty</div>
+          <div class="info-value">Beginner+</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">✅ Quizzes</div>
+          <div class="info-value">16 Q's</div>
+        </div>
+      </div>
+
+      <div class="content-section">
+        <div class="content-heading">📋 Prerequisites</div>
+        <div class="content-text">
+          • Basic algebra and calculus concepts (derivatives, multiplication)<br/>
+          • Understanding of basic statistics (mean, variance)<br/>
+          • Familiarity with Python or pseudocode (helpful but not required)<br/>
+          • Mathematical curiosity and patience
+        </div>
+      </div>
+
+      <div class="content-section">
+        <div class="content-heading">🎁 What You'll Get</div>
+        <div class="content-text">
+          ✅ Complete understanding of neural network architecture<br/>
+          ✅ Intuition for how networks learn and adjust weights<br/>
+          ✅ Ability to explain forward pass and backpropagation<br/>
+          ✅ Foundation to learn advanced architectures (CNNs, RNNs, Transformers)<br/>
+          ✅ Cheat sheet and summary notes for reference<br/>
+          ✅ Practical coding examples and resources
+        </div>
+      </div>
+
+      <div class="start-button-container">
+        <button class="btn-primary" onclick="startLearning()">Start Learning →</button>
+      </div>
+    </div>
+
+    <!-- MODULE 1 -->
+    <div id="module1" class="section">
+      <div class="module-header">
+        <div class="module-number">1</div>
+        <h2 class="module-title">Perceptrons & The Neuron Model</h2>
+        <p class="module-subtitle">Understanding the fundamental building block of neural networks</p>
+      </div>
+
+      <div class="content-section">
+        <div class="content-heading">🧬 What is a Perceptron?</div>
+        <div class="content-text">
+          A perceptron is a mathematical model of a biological neuron. It's the simplest form of an artificial neural network—a single unit that takes multiple inputs, processes them, and produces an output. Think of it as a decision-making device: it receives information from multiple sources, weighs that information, and makes a binary decision (yes/no, 0/1, fire/don't fire).
+        </div>
+        <div class="analogy-box">
+          <strong>🌳 Analogy:</strong> Imagine you're deciding
