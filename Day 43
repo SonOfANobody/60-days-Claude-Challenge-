@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Workflow Architect - Day 43</title>
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-surface: #151d30;
+            --bg-card: #1e2942;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #00f2fe;
+            --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            --accent-purple: #9d4edd;
+            --border: #2e3d60;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) var(--bg-base);
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Header Navigation */
+        header {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: var(--bg-base);
+            border: none;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            color: var(--bg-base);
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Layout Architecture */
+        .app-container {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+
+        /* Interactive Sidebar Navigation */
+        .sidebar {
+            width: 320px;
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: calc(100vh - 69px);
+            position: sticky;
+            top: 69px;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .step-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .step-item {
+            padding: 1rem;
+            border-radius: var(--radius);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .step-item:hover, .step-item.active {
+            border-color: var(--accent);
+            background: rgba(0, 242, 254, 0.04);
+        }
+
+        .step-item.active {
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+        }
+
+        .step-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .step-number {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .step-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .step-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .step-item.completed .step-status {
+            background: var(--success);
+        }
+
+        /* Central Workflow Workspace */
+        main {
+            flex: 1;
+            padding: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-section {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .badge {
+            background: rgba(157, 78, 221, 0.15);
+            color: var(--accent-purple);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Section Cards */
+        .stage-pane {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .stage-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grid-two-col {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-two-col {
+                grid-template-columns: 1fr;
+            }
+            .app-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+            }
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Tool Matrix Grid */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .tool-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .tool-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .tool-tag {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .tool-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Prompt Studio */
+        .prompt-box {
+            background: #070a12;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            position: relative;
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #38bdf8;
+            margin-top: 1rem;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+
+        .copy-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Structured Checklists & Matrices */
+        ul.task-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        ul.task-list li {
+            display: flex;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        ul.task-list li::before {
+            content: "⚡";
+            color: var(--accent);
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .matrix-table th, .matrix-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .matrix-table th {
+            background: var(--bg-card);
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Custom Interactive Workspace Elements */
+        .notes-area {
+            width: 100%;
+            height: 120px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 1rem;
+            font-size: 0.9rem;
+            resize: none;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        .notes-area:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Execution Metrics panel */
+        .metrics-bar {
+            display: flex;
+            gap: 1.5rem;
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 1rem;
+        }
+
+        .metric-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Interactive Diagram/Decision Tree Blocks */
+        .diagram-node {
+            background: var(--bg-card);
+            border: 1px dashed var(--accent);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        /* Print Override styles */
+        @media print {
+            body { background: white; color: black; }
+            header, .sidebar, .copy-btn, .notes-area, .btn { display: none !important; }
+            main { max-width: 100%; padding: 0; }
+            .stage-pane { display: block !important; page-break-after: always; }
+            .card { border: 1px solid #ccc; background: white; }
+            .prompt-box { background: #f5f5f5; color: #333; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Executive App Header Navigation -->
+    <header>
+        <div class="brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            AI Workflow Architect Pro
+        </div>
+        <div class="header-actions">
+            <button class="btn" onclick="window.print()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
+                Print Blueprint
+            </button>
+            <button class="btn btn-primary" onclick="bookmarkCurrentStage()">Bookmark Stage</button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Matrix Layer -->
+    <div class="app-container">
+        
+        <!-- Reactive Control Center Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Pipeline Stages</div>
+            <ul class="step-list">
+                <li class="step-item active" onclick="switchStage(1)" id="step-1">
+                    <div class="step-meta">
+                        <span class="step-number">Stage 01</span>
+                        <span class="step-name">API Spec Generation</span>
+                    </div>
+                    <div class="step-status"></div>
+                </li>
+                <li class="step-item" onclick="switchStage(2)" id="step-2">
+                    <div class="step-meta">
+                        <span class="step-number">Stage 02</span>
+                        <span class="step-name">Multi-Repo Scaffolding</span>
+                    </div>
+                    <div class="step-status"></div>
+                </li>
+                <li class="step-item" onclick="switchStage(3)" id="step-3">
+                    <div class="step-meta">
+                        <span class="step-number">Stage 03</span>
+                        <span class="step-name">Mock Data Orchestration</span>
+                    </div>
+                    <div class="step-status"></div>
+                </li>
+                <li class="step-item" onclick="switchStage(4)" id="step-4">
+                    <div class="step-meta">
+                        <span class="step-number">Stage 04</span>
+                        <span class="step-name">Local Environment Setup</span>
+                    </div>
+                    <div class="step-status"></div>
+                </li>
+                <li class="step-item" onclick="switchStage(5)" id="step-5">
+                    <div class="step-meta">
+                        <span class="step-number">Stage 05</span>
+                        <span class="step-name">Summary & Tech Stack</span>
+                    </div>
+                    <div class="step-status"></div>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Primary Presentation Context -->
+        <main>
+            <div class="hero-section">
+                <span class="badge">Microservices Blueprint Engine</span>
+                <h1 id="main-title">Microservices Architecture Mapping</h1>
+                <p class="subtitle" id="main-subtitle">Automating your distributed system design from interface configuration to multi-container execution grids.</p>
+            </div>
+
+            <!-- STAGE 1: API SPEC DESIGN -->
+            <div id="stage-1" class="stage-pane active">
+                <div class="grid-two-col">
+                    <div class="card">
+                        <div class="card-title">🎯 Tactical Objectives</div>
+                        <ul class="task-list">
+                            <li>Deconstruct domain constraints into bounded system context patterns.</li>
+                            <li>Formulate valid OpenAPI 3.1 specifications utilizing schema-first design.</li>
+                            <li>Incorporate system-wide standard structural payload schemas across decoupled boundaries.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">⏱️ Execution Guardrails</div>
+                        <div class="metrics-bar">
+                            <div class="metric-item">
+                                <span class="metric-label">Est. Time</span>
+                                <span class="metric-value">45 Mins</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Complexity</span>
+                                <span class="metric-value">Medium</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🛠️ Specialized Engineering Tools</div>
+                    <div class="tool-grid">
+                        <div class="tool-card">
+                            <div class="tool-header"><span class="tool-name">Claude 3.5 Sonnet</span><span class="tool-tag">Primary</span></div>
+                            <p class="tool-desc">Excellent context processing windows for formatting complex, highly nested schemas without encountering data structural drift.</p>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-header"><span class="tool-name">Stoplight Studio</span><span class="tool-tag">UI/UX</span></div>
+                            <p class="tool-desc">Provides rapid visual checking mechanisms and instant verification loops alongside generated definition specifications.</p>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-header"><span class="tool-name">ChatGPT Plus</span><span class="tool-tag">Alt</span></div>
+                            <p class="tool-desc">Effective utility for translating standard database schemas directly into formatted OpenAPI payload structures.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🤖 Microservices Spec Engineering Prompt Studio</div>
+                    <p class="tool-desc">Feed this prompt context to your primary LLM coordinator engine:</p>
+                    <div class="prompt-box">
+                        <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+                        Act as an elite Principal Systems Architect. Design a valid OpenAPI 3.1 YAML specification for a production-tier distributed 'Order Management Service'. The domain context includes endpoints for POST /orders, GET /orders/{id}, and PATCH /orders/{id}/status. Ensure
