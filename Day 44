@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LinkedIn Optimizer - Land Junior ML/Data Science Roles</title>
+<style>
+:root {
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --secondary: #7c3aed;
+  --accent: #06b6d4;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  
+  --bg-dark: #0f172a;
+  --bg-darker: #0a0e27;
+  --bg-card: #1e293b;
+  --bg-input: #1a2641;
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  --border: rgba(255,255,255,0.1);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  background-attachment: fixed;
+  line-height: 1.6;
+}
+
+body { padding: 0; }
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, rgba(37,99,235,0.15), rgba(124,58,237,0.08));
+  border-bottom: 1px solid var(--border);
+  padding: 24px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left h1 {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.header-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-header {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-header:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* CONTAINER */
+.container {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 40px 20px;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* SECTIONS */
+.section {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.section.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* CARDS & GRIDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+/* SCORE CARDS */
+.score-card {
+  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.05));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.score-label {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.score-badge {
+  font-size: 14px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.score-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* BEFORE/AFTER */
+.comparison-row {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.comparison-row h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.before-section {
+  background: rgba(239,68,68,0.08);
+  border-left: 3px solid var(--danger);
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+.after-section {
+  background: rgba(16,185,129,0.08);
+  border-left: 3px solid var(--success);
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.before-label, .after-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+
+.before-label { color: var(--danger); }
+.after-label { color: var(--success); }
+
+.before-text, .after-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ROAST SECTION */
+.roast-box {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.roast-problem {
+  color: var(--danger);
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.roast-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.roast-quote {
+  background: rgba(0,0,0,0.2);
+  border-left: 3px solid var(--danger);
+  padding: 12px;
+  margin: 8px 0;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ACTION ITEMS */
+.action-week {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid var(--primary);
+}
+
+.action-week-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.week-badge {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
+}
+
+.action-week-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.action-item {
+  background: rgba(37,99,235,0.05);
+  border-left: 3px solid var(--primary);
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.action-item strong {
+  color: var(--text-primary);
+}
+
+/* CHECKBOXES */
+.checkbox-list {
+  list-style: none;
+}
+
+.checkbox-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.checkbox-list input[type="checkbox"] {
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+/* COPY BOX */
+.copy-box {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+  position: relative;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.copy-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+  background: var(--primary-light);
+}
+
+/* BUTTONS */
+.btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* LISTS */
+.content-list {
+  list-style: none;
+  margin-bottom: 16px;
+}
+
+.content-list li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.content-list li:before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* UTILITIES */
+.mb-24 { margin-bottom: 24px; }
+.mt-24 { margin-top: 24px; }
+.text-center { text-align: center; }
+
+h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+  margin-top: 20px;
+}
+
+/* TABLE */
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.table th {
+  background: var(--bg-input);
+  color: var(--primary);
+  padding: 12px;
+  text-align: left;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border);
+  font-size: 12px;
+}
+
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.table tr:hover {
+  background: rgba(37,99,235,0.05);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .container { padding: 20px 12px; }
+  .header { flex-direction: column; gap: 12px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .tabs { gap: 8px; }
+  .tab-btn { padding: 10px 12px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>🎯 LinkedIn Optimizer for ML/Data Science Jobs</h1>
+      <div class="header-subtitle">Land Junior-Level Roles • 30-Day Job Search Activation Plan</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-header" onclick="printProfile()">📄 Print</button>
+      <button class="btn-header" onclick="exportGuide()">💾 Export</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('roast')">🔥 The Roast</button>
+      <button class="tab-btn" onclick="switchTab('rebuild')">🏗️ The Rebuild</button>
+      <button class="tab-btn" onclick="switchTab('scorecard')">📊 Before/After</button>
+      <button class="tab-btn" onclick="switchTab('jobsearch')">💼 Job Search Plan</button>
+      <button class="tab-btn" onclick="switchTab('keywords')">🔍 Keywords & Tips</button>
+    </div>
+
+    <!-- ============================================
+         THE ROAST TAB
+         ============================================ -->
+    <div id="roast" class="section active">
+      <h2>🔥 The Roast: Why Recruiters Skip Your Profile</h2>
+      <p style="color: var(--text-muted); margin-bottom: 24px;">Real talk: Your profile is optimized for network growth, not hiring. Here's what's actually hurting you in job search.</p>
+
+      <!-- HEADLINE ROAST -->
+      <div class="roast-box">
+        <div class="roast-problem">❌ HEADLINE — 3.5/10 — "Signals collaboration, not job-readiness"</div>
+        <div class="roast-text">
+          <strong>Current headline:</strong>
+          <div class="roast-quote">"ML Engineer Building & Deploying Production AI | Collaborating on Computer Vision & NLP | Let's Create Together"</div>
+          
+          <p style="margin-top: 12px;"><strong>The Problem for Job Search:</strong> "Let's Create Together" signals you want to build side projects, not take a job. Recruiters searching for "Junior Data Scientist" or "Machine Learning Engineer" on LinkedIn want someone HUNGRY for employment, not someone treating work as optional collaboration.</p>
+          
+          <p style="margin-top: 8px;"><strong>Why it hurts:</strong> Recruiters are busy. They scan 100+ profiles per day. Your headline doesn't immediately scream "hire me." It says "I'm cool and collaborative" — which is nice but doesn't convert to job offers.</p>
+          
+          <p style="margin-top: 8px;"><strong>Invisible cost:</strong> You're not showing up in recruiter searches. Keywords are weak for job market. You're not positioning yourself as job-ready.</p>
+        </div>
+      </div>
+
+      <!-- ABOUT ROAST -->
+      <div class="roast-box">
+        <div class="roast-problem">❌ ABOUT SECTION — 4/10 — "Positioned for collaboration, not hiring"</div>
+        <div class="roast-text">
+          <strong>Problem:</strong> Your About section says "looking for collaborators" when recruiters want to see "actively seeking junior ML/Data Science role."
+          
+          <p style="margin-top: 12px;"><strong>Specific issues:</strong></p>
+          <ul style="list-style: none; margin-left: 0;">
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> No mention of job titles you're targeting</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> Says "collaborators building AI solutions" instead of "companies hiring Data Scientists"</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> No availability info (when can you start?)</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> CTA is vague ("message me about projects") — should be clear about job search</li>
+          </ul>
+
+          <p style="margin-top: 12px;"><strong>Why it hurts:</strong> Recruiters use keyword filters to find candidates. Your About section doesn't hit the keywords they search for: "actively seeking," "open to opportunities," "hiring," etc.</p>
+        </div>
+      </div>
+
+      <!-- EXPERIENCE ROAST -->
+      <div class="roast-box">
+        <div class="roast-problem">❌ EXPERIENCE — 4/10 — "Only one internship, no career progression"</div>
+        <div class="roast-text">
+          <strong>Current:</strong>
+          <div class="roast-quote">ML Intern | Hexsoftwares Pvt Ltd | 3 months | Built sentiment analysis, stock prediction, Alzheimer's diagnostic models</div>
+          
+          <p style="margin-top: 12px;"><strong>The Problem:</strong> One internship at a startup doesn't prove you can do the job long-term. Recruiters want to see:</p>
+          <ul style="list-style: none; margin-left: 0;">
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> Ability to work on a team (internship might've been solo work)</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> Experience shipping code to production</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> Evidence of growth and learning</li>
+          </ul>
+
+          <p style="margin-top: 12px;"><strong>Why it hurts:</strong> Junior role requires proving you can execute in a business context, not just build projects. One internship isn't enough credibility.</p>
+        </div>
+      </div>
+
+      <!-- SKILLS ROAST -->
+      <div class="roast-box">
+        <div class="roast-problem">❌ SKILLS — 6/10 — "Missing critical job-search keywords"</div>
+        <div class="roast-text">
+          <strong>Current top skills:</strong> Machine Learning • Python • Deep Learning • Computer Vision • PyTorch
+          
+          <p style="margin-top: 12px;"><strong>Missing:</strong></p>
+          <ul style="list-style: none; margin-left: 0;">
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> "Data Science" (recruiters search for this term)</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> "SQL" (almost every junior data science role needs this)</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> "Pandas" (core data manipulation library)</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> "Scikit-learn" (standard for ML)</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> "Data Analysis" (job posting keyword)</li>
+            <li style="padding: 6px 0; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: var(--danger);">✗</span> "Statistics" (required for many roles)</li>
+          </ul>
+
+          <p style="margin-top: 12px;"><strong>Why it hurts:</strong> You're invisible for recruiter searches. They search for "SQL" or "Data Analysis" — you don't show up.</p>
+        </div>
+      </div>
+
+      <!-- OVERALL SCORE -->
+      <div class="score-card">
+        <div class="score-header">
+          <div class="score-label">📊 OVERALL PROFILE STRENGTH (FOR JOB SEARCH)</div>
+          <div class="score-badge">22/100</div>
+        </div>
+        <div class="score-text">
+          Your profile is actively HURTING your job search. You're positioned for collaboration/network, not employment. Recruiters don't see you as job-ready. To land a junior ML/DS role, you need to shift from "open to collaborations" to "actively seeking role" messaging.
+        </div>
+      </div>
+
+      <div style="background: rgba(245,158,11,0.08); border-left: 3px solid var(--warning); padding: 16px; border-radius: 6px; margin-top: 20px;">
+        <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+          <strong style="color: var(--warning);">⚠️ KEY INSIGHT:</strong> Your collaboration-focused profile will REPEL many recruiters because it signals you're not serious about getting hired. They'll skip you for someone who's clearly hungry for the role. Let's fix that.
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================================
+         THE REBUILD TAB
+         ============================================ -->
+    <div id="rebuild" class="section">
+      <h2>🏗️ The Rebuild: Optimized for Junior ML/Data Science Jobs</h2>
+      <p style="color: var(--text-muted); margin-bottom: 24px;">Here's how to reposition your profile to land junior-level roles.</p>
+
+      <!-- HEADLINE REBUILD -->
+      <div class="card">
+        <div class="card-title">📝 Headline — 3 Strategic Options</div>
+        
+        <div style="margin-bottom: 16px;">
+          <h4 style="color: var(--primary); font-size: 13px; font-weight: 700; margin-bottom: 8px;">OPTION 1: Job-Focused (RECOMMENDED)</h4>
+          <div class="copy-box">
+Junior Machine Learning Engineer | Data Science • Python • PyTorch | Actively Seeking Roles | Built 3+ Production AI Models
+            <button class="copy-button" onclick="copyToClipboard(this)">COPY</button>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"><strong>Why this works:</strong> "Actively Seeking Roles" signals job-readiness. Lists keywords recruiters search for (ML, Python, PyTorch, Data Science). Proof you've built things. Searchable for junior roles.</p>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <h4 style="color: var(--primary); font-size: 13px; font-weight: 700; margin-bottom: 8px;">OPTION 2: Impact-Focused</h4>
+          <div class="copy-box">
+ML E
