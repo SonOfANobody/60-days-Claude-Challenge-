@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Defend Your Experience - AI Interview Coach</title>
+<style>
+:root {
+  --primary: #7c3aed;
+  --primary-light: #a78bfa;
+  --secondary: #6d28d9;
+  --accent: #06b6d4;
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+  
+  --bg-dark: #0f172a;
+  --bg-darker: #0a0e27;
+  --bg-card: #1e293b;
+  --bg-input: #1a2641;
+  --bg-hover: #2d3d54;
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  --border: rgba(255,255,255,0.08);
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+body { padding: 0; }
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(109,40,217,0.08));
+  border-bottom: 1px solid var(--border);
+  padding: 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.header-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* CONTAINER */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* EXPLAINER */
+.explainer {
+  background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.05));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.explainer-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.explainer-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.explainer-list {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 16px;
+}
+
+.explainer-list li {
+  list-style: none;
+}
+
+.explainer-list li:before {
+  content: "→ ";
+  color: var(--accent);
+  margin-right: 6px;
+}
+
+/* UPLOAD SECTION */
+.upload-area {
+  background: var(--bg-card);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+}
+
+.upload-area:hover {
+  border-color: var(--primary);
+  background: var(--bg-hover);
+}
+
+.upload-area.active {
+  border-color: var(--primary);
+  background: rgba(124,58,237,0.1);
+}
+
+.upload-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.upload-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.upload-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.upload-input {
+  display: none;
+}
+
+/* SESSION */
+.session-container {
+  display: none;
+}
+
+.session-container.active {
+  display: block;
+}
+
+.interview-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.question-box {
+  margin-bottom: 20px;
+}
+
+.question-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.question-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.question-context {
+  background: var(--bg-input);
+  border-left: 3px solid var(--primary);
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+/* ANSWER AREA */
+.answer-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.answer-input {
+  width: 100%;
+  padding: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.answer-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+}
+
+/* BUTTONS */
+.btn {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border: none;
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* FEEDBACK */
+.feedback-box {
+  background: rgba(59,130,246,0.1);
+  border-left: 3px solid var(--accent);
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.feedback-title {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+/* PROGRESS */
+.progress-section {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.progress-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  width: var(--width, 0%);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* DEFENSE RATING */
+.rating-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.rating-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.rating-score {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.rating-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.rating-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.empty-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* REPORT */
+.report-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.report-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.report-subsection {
+  margin-bottom: 20px;
+}
+
+.report-subsection-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.report-item {
+  background: var(--bg-input);
+  border-left: 3px solid var(--primary);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.report-item.strong {
+  border-left-color: var(--success);
+}
+
+.report-item.needs-work {
+  border-left-color: var(--warning);
+}
+
+.report-status {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* LOADING */
+.loading {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--primary);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s ease;
+  padding: 24px;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-close {
+  float: right;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .main {
+    padding: 16px;
+  }
+
+  .header {
+    padding: 16px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .question-text {
+    font-size: 14px;
+  }
+
+  .rating-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    margin: 20px;
+    max-width: 100%;
+  }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(124,58,237,0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(124,58,237,0.5);
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-content">
+      <h1>🎯 Defend Your Experience</h1>
+      <div class="header-subtitle">AI-powered interview coach that challenges you with personalized questions based on your real experience</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="container">
+      <!-- INITIAL STATE -->
+      <div id="initial-state">
+        <div class="explainer">
+          <div class="explainer-title">💡 How This Works</div>
+          <div class="explainer-text">
+            This is an adaptive interview coach, not a generic questionnaire. Upload your resume, project description, portfolio, bio, or any document about your experience. I'll extract your claims and challenge you with smart follow-up questions that:
+          </div>
+          <ul class="explainer-list">
+            <li>Target the specific claims YOU make (not generic templates)</li>
+            <li>Dig deeper based on your answers, getting progressively more realistic</li>
+            <li>Identify weak evidence, vague statements, and missing context</li>
+            <li>Help you tell stronger, more confident stories about your work</li>
+            <li>Generate a Defense Report showing what's well-defended and what needs work</li>
+          </ul>
+          <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted); font-style: italic;">
+            The goal: Not to fix your resume. To help you confidently defend every claim you make about yourself.
+          </div>
+        </div>
+
+        <!-- UPLOAD AREA -->
+        <div class="interview-section">
+          <div class="question-label">Step 1: Upload Your Experience</div>
+          <div class="upload-area" onclick="triggerUpload()">
+            <div class="upload-icon">📄</div>
+            <div class="upload-title">Drop your document or click to upload</div>
+            <div class="upload-text">Resume, LinkedIn profile, portfolio, bio, project description, or any document about your experience</div>
+            <input type="file" class="upload-input" id="fileInput" accept=".txt,.pdf,.md,.docx" onchange="handleFile(event)">
+          </div>
+
+          <div style="margin-top: 16px; padding: 12px; background: var(--bg-input); border-radius: 6px; font-size: 12px; color: var(--text-secondary);">
+            📋 <strong>Supported formats:</strong> Text (.txt), Markdown (.md), PDF, or Word (.docx). Or paste your content below:
+          </div>
+
+          <textarea class="answer-input" id="pasteArea" placeholder="Or paste your resume, bio, project description, or any text about your experience here..." style="margin-top: 12px;"></textarea>
+
+          <button class="btn btn-primary" onclick="startInterview()" style="margin-top: 12px;">Start Interview</button>
+        </div>
+
+        <!-- VISUAL STYLE PREFERENCE -->
+        <div class="interview-section" style="margin-top: 24px;">
+          <div class="question-label">Step 2: (Optional) Visual Style Preference</div>
+          <div class="question-text">How do you prefer the interface to look?</div>
+          <div class="btn-group">
+            <button class="btn" onclick="setStyle('professional')" data-style="professional">🎩 Professional</button>
+            <button class="btn" onclick="setStyle('minimalist')" data-style="minimalist">⚪ Minimalist</button>
+            <button class="btn" onclick="setStyle('bold')" data-style="bold">🔥 Bold</button>
+            <button class="btn" onclick="setStyle('warm')" data-style="warm">☀️ Warm</button>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">This will adapt colors, typography, and animations to your preference.</div>
+        </div>
+      </div>
+
+      <!-- SESSION STATE -->
+      <div id="session-state" class="session-container">
+        <!-- PROGRESS -->
+        <div class="progress-section">
+          <div class="progress-label">Interview Progress</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text"><span id="questionCount">0</span> / <span id="totalQuestions">0</span> questions</div>
+        </div>
+
+        <!-- INTERVIEW -->
+        <div id="interview-container" class="interview-section">
+          <div id="question-box" class="question-box" style="display: none;">
+            <div class="question-label" id="questionLabel"></div>
+            <div class="question-text" id="questionText"></div>
+            <div class="question-context" id="questionContext" style="display: none;"></div>
+            
+            <div class="answer-area">
+              <textarea class="answer-input" id="answerInput" placeholder="Your response..."></textarea>
+            </div>
+
+            <div class="btn-group">
+              <button class="btn btn-primary" onclick="submitAnswer()">Submit Answer</button>
+              <button class="btn" onclick="skipQuestion()">Skip This Question</button>
+              <button class="btn" onclick="endInterview()">End Interview</button>
+            </div>
+          </div>
+
+          <div id="loading-indicator" style="text-align: center; padding: 20px; display: none;">
+            <div style="font-size: 14px; color: var(--text-secondary);">
+              <span class="loading" style="margin-right: 8px;"></span>
+              Claude is analyzing your answer...
+            </div>
+          </div>
+
+          <div id="feedback-container" style="display: none;">
+            <div class="feedback-box" id="feedbackBox"></div>
+            <button class="btn btn-primary" onclick="nextQuestion()">Next Question →</button>
+          </div>
+        </div>
+
+        <!-- RATING CARDS -->
+        <div id="rating-cards" style="display: none;">
+          <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">Defense Assessment</div>
+          <div class="rating-grid" id="ratingGrid"></div>
+        </div>
+      </div>
+
+      <!-- REPORT STATE -->
+      <div id="report-state" style="display: none;">
+        <div class="report-section">
+          <div class="report-title">📊 Your Defense Report</div>
+          
+          <div class="report-subsection">
+            <div class="report-subsection-title">Overall Defense Score</div>
+            <div class="rating-grid">
+              <div class="rating-card">
+                <div class="rating-score" id="overallScore">0</div>
+                <div class="rating-label">Overall</div>
+              </div>
+              <div class="rating-card">
+                <div class="rating-score" id="clarityScore">0</div>
+                <div class="rating-label">Clarity</div>
+              </div>
+              <div class="rating-card">
+                <div class="rating-score" id="evidenceScore">0</div>
+                <div class="rating-label">Evidence</div>
+              </div>
+              <div class="rating-card">
+                <div class="rating-score" id="confidenceScore">0</div>
+                <div class="rating-label">Confidence</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-subsection">
+            <div class="report-subsection-title">✅ Well-Defended Claims</div>
+            <div id="strongClaims"></div>
+          </div>
+
+          <div class="report-subsection">
+            <div class="report-subsection-title">⚠️ Claims Needing Improvement</div>
+            <div id="weakClaims"></div>
+          </div>
+
+          <div class="report-subsection">
+            <div class="report-subsection-title">💡 Specific Recommendations</div>
+            <div id="recommendations"></div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 24px;">
+            <button class="btn btn-primary" onclick="exportReport()">📤 Export Report</button>
+            <button class="btn" onclick="startOver()">🔄 Start Over</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal" id="helpModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeHelp()">×</button>
+    <h2>How to Get the Most Out of This Interview</h2>
+    <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.8; margin-top: 16px;">
+      <h3 style="margin-top: 16px; color: var(--text-primary);">📤 Uploading Your Experience</h3>
+      <p>You can upload:</p>
+      <ul style="margin-left: 20px; margin-top: 8px;">
+        <li>Resume (any format)</li>
+        <li>LinkedIn profile (copy-paste the text)</li>
+        <li>Project descriptions or portfolio summaries</li>
+        <li>Cover letters or bios</li>
+        <li>Research papers or case studies</li>
+      </ul>
+
+      <h3 style="margin-top: 16px; color: var(--text-primary);">🎯 Answering Questions</h3>
+      <p style="margin-top: 8px;">Be specific and detailed. Generic answers get generic feedback. The more you share, the more personalized and useful the follow-ups become.</p>
+
+      <h3 style="margin-top: 16px; color: var(--text-primary);">📊 Understanding Your Report</h3>
+      <p style="margin-top: 8px;"><strong>Well-Defended Claims:</strong> These are claims you explained clearly with specific examples and context.</p>
+      <p style="margin-top: 8px;"><strong>Claims Needing Improvement:</strong> These are vague, under-explained, or lack specific evidence.</p>
+      <p style="margin-top: 8px;"><strong>Recommendations:</strong> Specific actions to strengthen your story before a real interview.</p>
+
+      <h3 style="margin-top: 16px; color: var(--text-primary);">💾 Sessions</h3>
+      <p style="margin-top: 8px;">Your sessions are saved locally in your browser. You can export your report as a document to review later or share.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== STATE ====================
+let currentSession = null;
+let uploadedContent = '';
+let selectedStyle = 'professional';
+let currentQuestionIndex = 0;
+let questions = [];
+let answers = [];
+let defenseScores = {};
+
+// ==================== FILE HANDLING ==========
